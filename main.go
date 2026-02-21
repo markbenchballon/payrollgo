@@ -267,7 +267,7 @@ func main() {
 	)
 
 	// 📌 Open connection
-	DB, err := sql.Open("pgx", dsn)
+	DB, err := sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("❌ Failed to open DB: %v", err)
 	}
