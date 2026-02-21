@@ -264,7 +264,7 @@ func main() {
 
 	// 📌 Build DSN manually
 	dsn := fmt.Sprintf(
-		"mysql://%s:%s@%s:%s/%s",
+		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		user, pass, host, port, name,
 	)
 
