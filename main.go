@@ -270,21 +270,22 @@ func main() {
 	)
 
 	// 📌 Open connection
-	DB, err := sql.Open("postgres", dsn)
+	var err error
+	db, err = sql.Open("postgres", dsn)
 	if err != nil {
 		log.Fatalf("❌ Failed to open DB: %v", err)
 	}
 
 	// 📌 Pool config
-	DB.SetMaxOpenConns(25)
-	DB.SetMaxIdleConns(10)
-	DB.SetConnMaxLifetime(5 * time.Minute)
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(10)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	// 📌 Ping with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if err = DB.PingContext(ctx); err != nil {
+	if err = db.PingContext(ctx); err != nil {
 		log.Fatalf("❌ Database unreachable: %v", err)
 	}
 
@@ -292,7 +293,7 @@ func main() {
 
 	log.Println("✅ Connected to PostgreSQL (Render ready)")
 
-	fmt.Println("Connected to MySQL payrollgo!")
+	// fmt.Println("Connected to MySQL payrollgo!")
 
 	ensureAdmin()
 
