@@ -17,9 +17,8 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 
-	// _ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 
-	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -265,13 +264,13 @@ func main() {
 
 	// 📌 Build DSN manually
 	dsn := fmt.Sprintf(
-		"postgres://%s:%s@%s:%s/%s",
+		"mysql://%s:%s@%s:%s/%s",
 		user, pass, host, port, name,
 	)
 
 	// 📌 Open connection
 	var err error
-	db, err = sql.Open("postgres", dsn)
+	db, err = sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatalf("❌ Failed to open DB: %v", err)
 	}
@@ -289,11 +288,7 @@ func main() {
 		log.Fatalf("❌ Database unreachable: %v", err)
 	}
 
-	log.Println("✅ Connected to PostgreSQL (env-based config)")
-
-	log.Println("✅ Connected to PostgreSQL (Render ready)")
-
-	// fmt.Println("Connected to MySQL payrollgo!")
+	fmt.Println("Connected to MySQL payrollgo!")
 
 	ensureAdmin()
 
