@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Payroll Login</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Decorative blurred circles */
+    body::before,
+    body::after {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 50%;
+        filter: blur(80px);
+    }
+
+    body::before {
+        top: -100px;
+        left: -100px;
+    }
+
+    body::after {
+        bottom: -100px;
+        right: -100px;
+    }
+
+    /* Login card */
+    .login-box {
+        width: 360px;
+        padding: 45px 35px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(15px);
+        border-radius: 18px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        text-align: center;
+        color: #fff;
+        animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .login-box h2 {
+        font-size: 26px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .login-box p {
+        font-size: 14px;
+        opacity: 0.8;
+        margin-bottom: 30px;
+    }
+
+    /* Input group */
+    .input-group {
+        position: relative;
+        margin-bottom: 22px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 14px 14px;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        font-size: 15px;
+        background: rgba(255, 255, 255, 0.85);
+        color: #333;
+    }
+
+    .input-group label {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        font-size: 14px;
+        color: #777;
+        transform: translateY(-50%);
+        pointer-events: none;
+        transition: 0.3s;
+        background: transparent;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+        top: -7px;
+        left: 10px;
+        font-size: 12px;
+        color: #0f2027;
+        background: #fff;
+        padding: 0 6px;
+        border-radius: 4px;
+    }
+
+    /* Button */
+    button {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        color: #fff;
+        background: linear-gradient(135deg, #1d976c, #93f9b9);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Forgot password */
+    .forgot {
+        margin-top: 15px;
+        text-align: right;
+    }
+
+    .forgot a {
+        font-size: 13px;
+        color: #e0f2ff;
+        text-decoration: none;
+        transition: opacity 0.3s;
+    }
+
+    .forgot a:hover {
+        opacity: 0.8;
+    }
+
+    /* Error */
+    .error {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #ffb3b3;
+        min-height: 20px;
+    }
+
+    /* char counter */
+    .char-counter {
+        text-align: right;
+        font-size: 11px;
+        color: rgba(255,255,255,0.6);
+        margin-top: -16px;
+        margin-bottom: 10px;
+    }
+
+    .char-counter.over {
+        color: #ffb3b3;
+    }
+
+    /* Responsive */
+    @media (max-width: 420px) {
+        .login-box {
+            width: 90%;
+            padding: 40px 25px;
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+    <h2>Payroll System</h2>
+    <p>Sign in to your account</p>
+
+    <form method="POST" action="/login" id="loginForm">
+        <div class="input-group">
+            <input type="text" id="usernameInput" name="username" required placeholder=" " maxlength="30" autocomplete="off">
+            <label>Username</label>
+        </div>
+        <div class="char-counter" id="charCounter"></div>
+
+        <div class="input-group">
+    <input type="password" id="passwordInput" name="password" required placeholder=" " maxlength="30">
+    <label>Password</label>
+</div>
+<div class="char-counter" id="passCharCounter"></div>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <div class="forgot">
+        <a href="/forgot-password">Forgot password?</a>
+    </div>
+
+    <div class="error" id="errorMsg">{{.error}}</div>
+</div>
+
+<script>
+    const usernameInput = document.getElementById('usernameInput');
+    const charCounter   = document.getElementById('charCounter');
+    const errorMsg      = document.getElementById('errorMsg');
+    const loginForm     = document.getElementById('loginForm');
+
+    // ─── Real-time: strip spaces & special characters as user types ───
+    usernameInput.addEventListener('input', function () {
+        // Remove anything that is NOT a letter, digit, or underscore
+        const cleaned = this.value.replace(/[^a-zA-Z0-9_]/g, '');
+        if (this.value !== cleaned) {
+            const cursor = this.selectionStart - (this.value.length - cleaned.length);
+            this.value = cleaned;
+            this.setSelectionRange(cursor, cursor);
+        }
+
+        // Update character counter
+        const len = this.value.length;
+        charCounter.textContent = `${len} / 30`;
+        charCounter.classList.toggle('over', len >= 30);
+    });
+
+    // ─── Prevent paste of invalid characters ───
+    usernameInput.addEventListener('paste', function (e) {
+        e.preventDefault();
+        const pasted = (e.clipboardData || window.clipboardData).getData('text');
+        const cleaned = pasted.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
+        document.execCommand('insertText', false, cleaned);
+    });
+
+    // ─── Form submit: final validation before sending to server ───
+    loginForm.addEventListener('submit', function (e) {
+        const username = usernameInput.value.trim();
+        errorMsg.textContent = '';
+
+        if (username === '') {
+            e.preventDefault();
+            errorMsg.textContent = '⚠️ Username is required.';
+            return;
+        }
+
+        if (/\s/.test(username)) {
+            e.preventDefault();
+            errorMsg.textContent = '⚠️ Username must not contain spaces.';
+            return;
+        }
+
+        if (/[^a-zA-Z0-9_]/.test(username)) {
+            e.preventDefault();
+            errorMsg.textContent = '⚠️ Username must not contain special characters.';
+            return;
+        }
+
+        if (username.length > 30) {
+            e.preventDefault();
+            errorMsg.textContent = '⚠️ Username must not exceed 30 characters.';
+            return;
+        }
+    });
+
+    const passwordInput   = document.getElementById('passwordInput');
+const passCharCounter = document.getElementById('passCharCounter');
+
+passwordInput.addEventListener('input', function () {
+    const cleaned = this.value.replace(/[^a-zA-Z0-9_]/g, '');
+    if (this.value !== cleaned) {
+        this.value = cleaned;
+    }
+    const len = this.value.length;
+    passCharCounter.textContent = `${len} / 30`;
+    passCharCounter.classList.toggle('over', len >= 30);
+});
+
+passwordInput.addEventListener('paste', function (e) {
+    e.preventDefault();
+    const pasted = (e.clipboardData || window.clipboardData).getData('text');
+    const cleaned = pasted.replace(/[^a-zA-Z0-9_]/g, '').slice(0, 30);
+    document.execCommand('insertText', false, cleaned);
+});
+</script>
+
+</body>
+</html>

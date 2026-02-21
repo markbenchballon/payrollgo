@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>System Settings - Payroll</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #eef2f7;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #3f5efb, #4b7bec);
+    color: #fff;
+    padding: 25px 20px;
+}
+
+.sidebar h2 {
+    font-size: 22px;
+    margin-bottom: 40px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 18px;
+}
+
+.sidebar ul li a {
+    color: #eaf0ff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: background 0.3s;
+    font-size: 14px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 25px 35px;
+    overflow-y: auto;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.topbar h1 {
+    font-size: 26px;
+    color: #2c3e50;
+}
+
+/* Settings Container */
+.settings-container {
+    max-width: 1200px;
+}
+
+.settings-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #7f8c8d;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    color: #3f5efb;
+    border-bottom-color: #3f5efb;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.settings-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+
+.settings-card h3 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+    font-size: 18px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #34495e;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3f5efb;
+    box-shadow: 0 0 0 3px rgba(63, 94, 251, 0.1);
+}
+
+.btn {
+    padding: 12px 30px;
+    background: #3f5efb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: #2d46d4;
+}
+
+.btn-secondary {
+    background: #95a5a6;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+.job-grades-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.job-grades-table th,
+.job-grades-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.job-grades-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .settings-tabs {
+        overflow-x: auto;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Payroll</h2>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/admin/employees">Employees</a></li>
+            <li><a href="/admin/payroll">Payroll</a></li>
+            <li><a href="/admin/reports">Reports</a></li>
+            <li><a href="/users">Users</a></li>
+            <li><a class="active" href="/admin/settings">Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="topbar">
+            <h1>System Settings</h1>
+            <div class="date">{{.date}}</div>
+        </div>
+
+        <div class="settings-container">
+            <!-- Tabs -->
+            <div class="settings-tabs">
+              
+                <button class="tab-btn" onclick="showTab('contributions')">Contributions</button>
+                <button class="tab-btn" onclick="showTab('tax')">Tax Settings</button>
+                <button class="tab-btn" onclick="showTab('payroll')">Payroll Settings</button>
+            </div>
+
+            <div id="alert" class="alert"></div>
+
+            <!-- Company Info Tab -->
+            <div id="company-tab" class="tab-content active">
+                <div class="settings-card">
+                    <h3>Company Information</h3>
+                    <form id="company-form">
+                        <div class="form-group">
+                            <label>Company Name</label>
+                            <input type="text" name="company_name" placeholder="Enter company name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea name="address" rows="3" placeholder="Enter company address" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>TIN</label>
+                            <input type="text" name="tin" placeholder="000-000-000-000" maxlength="15">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            <input type="text" name="contact" placeholder="09XX-XXX-XXXX">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="company@example.com">
+                        </div>
+                        <button type="submit" class="btn">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Contributions Tab -->
+            <div id="contributions-tab" class="tab-content">
+                <div class="settings-card">
+                    <h3>SSS, PhilHealth, Pag-IBIG Rates</h3>
+                    <form id="contributions-form">
+                        <div class="form-group">
+                            <label>SSS Employee Rate (%)</label>
+                            <input type="number" name="sss_rate" step="0.01" placeholder="4.5" value="4.5">
+                        </div>
+                        <div class="form-group">
+                            <label>PhilHealth Employee Rate (%)</label>
+                            <input type="number" name="philhealth_rate" step="0.01" placeholder="2.0" value="2.0">
+                        </div>
+                        <div class="form-group">
+                            <label>Pag-IBIG Employee Rate (%)</label>
+                            <input type="number" name="pagibig_rate" step="0.01" placeholder="2.0" value="2.0">
+                        </div>
+                        <button type="submit" class="btn">Update Rates</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tax Settings Tab -->
+            <div id="tax-tab" class="tab-content">
+                <div class="settings-card">
+                    <h3>Withholding Tax Settings</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 20px;">
+                        Tax brackets are based on Philippine BIR regulations (TRAIN Law).
+                    </p>
+                    <table class="job-grades-table">
+                        <thead>
+                            <tr>
+                                <th>Income Range</th>
+                                <th>Tax Rate</th>
+                                <th>Fixed Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>₱0 - ₱250,000</td>
+                                <td>0%</td>
+                                <td>₱0</td>
+                            </tr>
+                            <tr>
+                                <td>₱250,001 - ₱400,000</td>
+                                <td>15%</td>
+                                <td>₱0</td>
+                            </tr>
+                            <tr>
+                                <td>₱400,001 - ₱800,000</td>
+                                <td>20%</td>
+                                <td>₱22,500</td>
+                            </tr>
+                            <tr>
+                                <td>₱800,001 - ₱2,000,000</td>
+                                <td>25%</td>
+                                <td>₱102,500</td>
+                            </tr>
+                            <tr>
+                                <td>₱2,000,001 - ₱8,000,000</td>
+                                <td>30%</td>
+                                <td>₱402,500</td>
+                            </tr>
+                            <tr>
+                                <td>Above ₱8,000,000</td>
+                                <td>35%</td>
+                                <td>₱2,202,500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payroll Settings Tab -->
+            <div id="payroll-tab" class="tab-content">
+                <div class="settings-card">
+                    <h3>Payroll Cycle Settings</h3>
+                    <form id="payroll-form">
+                        <div class="form-group">
+                            <label>Payroll Frequency</label>
+                            <select name="payroll_frequency">
+                                <option value="semi-monthly">Semi-Monthly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="weekly">Weekly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Payroll Cut-off (Day of Month)</label>
+                            <input type="number" name="cutoff_day" min="1" max="31" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label>Default Working Hours per Day</label>
+                            <input type="number" name="work_hours" step="0.5" value="8">
+                        </div>
+                        <div class="form-group">
+                            <label>Overtime Rate Multiplier</label>
+                            <input type="number" name="overtime_rate" step="0.01" value="1.25">
+                        </div>
+                        <button type="submit" class="btn">Save Settings</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Holiday & Leave Settings</h3>
+                    <form id="holiday-form">
+                        <div class="form-group">
+                            <label>Annual Leave Days</label>
+                            <input type="number" name="annual_leave" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label>Sick Leave Days</label>
+                            <input type="number" name="sick_leave" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label>Holiday Pay Rate</label>
+                            <input type="number" name="holiday_rate" step="0.01" value="2.0">
+                            <small style="color: #7f8c8d;">Multiplier for regular holidays</small>
+                        </div>
+                        <button type="submit" class="btn">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+
+function showAlert(message, type) {
+    const alert = document.getElementById('alert');
+    alert.className = `alert alert-${type}`;
+    alert.textContent = message;
+    alert.style.display = 'block';
+    
+    setTimeout(() => {
+        alert.style.display = 'none';
+    }, 5000);
+}
+
+// Company form submission
+document.getElementById('company-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    try {
+        const response = await fetch('/admin/settings/company', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            showAlert('Company information updated successfully!', 'success');
+        } else {
+            showAlert('Failed to update company information', 'error');
+        }
+    } catch (error) {
+        showAlert('Error: ' + error.message, 'error');
+    }
+});
+
+// Contributions form submission
+document.getElementById('contributions-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    try {
+        const response = await fetch('/admin/settings/contributions', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            showAlert('Contribution rates updated successfully!', 'success');
+        } else {
+            showAlert('Failed to update contribution rates', 'error');
+        }
+    } catch (error) {
+        showAlert('Error: ' + error.message, 'error');
+    }
+});
+
+// Payroll form submission
+document.getElementById('payroll-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    showAlert('Payroll settings saved!', 'success');
+});
+
+// Holiday form submission
+document.getElementById('holiday-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    showAlert('Holiday settings saved!', 'success');
+});
+</script>
+
+</body>
+</html>

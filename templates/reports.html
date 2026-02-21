@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Payroll Reports</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #eef2f7;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #3f5efb, #4b7bec);
+    color: #fff;
+    padding: 25px 20px;
+}
+
+.sidebar h2 {
+    font-size: 22px;
+    margin-bottom: 40px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 18px;
+}
+
+.sidebar ul li a {
+    color: #eaf0ff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: background 0.3s;
+    font-size: 14px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 25px 35px;
+}
+
+/* Top bar */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.topbar h1 {
+    font-size: 26px;
+    color: #2c3e50;
+}
+
+.date {
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+/* Filter Section */
+.filter-section {
+    background: #fff;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.filter-section h3 {
+    font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.filter-item label {
+    display: block;
+    font-size: 13px;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+}
+
+.filter-item input,
+.filter-item select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border 0.3s;
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+    outline: none;
+    border-color: #4b7bec;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4b7bec, #3f5efb);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(75, 123, 236, 0.4);
+}
+
+.btn-secondary {
+    background: #fff;
+    color: #4b7bec;
+    border: 1px solid #4b7bec;
+}
+
+.btn-secondary:hover {
+    background: #f0f4ff;
+}
+
+.btn-export {
+    background: #00b894;
+    color: #fff;
+}
+
+.btn-export:hover {
+    background: #00a383;
+}
+
+/* Reports Grid */
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.report-card {
+    background: #fff;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.report-card:hover {
+    transform: translateY(-6px);
+}
+
+.report-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.report-card h4 {
+    font-size: 16px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.report-card p {
+    font-size: 13px;
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+.icon-blue { background: #e3f2fd; color: #2196f3; }
+.icon-green { background: #e8f5e9; color: #4caf50; }
+.icon-orange { background: #fff3e0; color: #ff9800; }
+.icon-purple { background: #f3e5f5; color: #9c27b0; }
+.icon-red { background: #ffebee; color: #f44336; }
+.icon-teal { background: #e0f2f1; color: #009688; }
+
+/* Report Table */
+.report-table-container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    display: none;
+}
+
+.report-table-container.active {
+    display: block;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.report-header h3 {
+    font-size: 20px;
+    color: #2c3e50;
+}
+
+.back-btn {
+    padding: 8px 18px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    background: #e9ecef;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table thead {
+    background: #f8f9fa;
+}
+
+.data-table th {
+    padding: 14px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.data-table td {
+    padding: 14px;
+    font-size: 14px;
+    color: #495057;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.data-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+}
+
+.summary-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 12px;
+    color: #fff;
+}
+
+.summary-card h5 {
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+
+.summary-card .amount {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 16px;
+    color: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .reports-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Payroll</h2>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/admin/employees">Employees</a></li>
+            <li><a href="/admin/payroll">Payroll</a></li>
+            <li><a class="active" href="/admin/reports">Reports</a></li>
+            <li><a href="/users">Users</a></li>
+            <li><a href="#">Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <div class="topbar">
+            <h1>Payroll Reports</h1>
+            <div class="date" id="currentDate"></div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h3>📊 Report Filters</h3>
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label>From Date</label>
+                    <input type="date" id="fromDate">
+                </div>
+                <div class="filter-item">
+                    <label>To Date</label>
+                    <input type="date" id="toDate">
+                </div>
+                
+                <div class="filter-item">
+                    <label>Employee Status</label>
+                    <select id="status">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+            </div>
+        </div>
+
+        <!-- Reports Grid -->
+        <div id="reportsGrid" class="reports-grid">
+            <div class="report-card" onclick="showReport('payroll-summary')">
+                <div class="report-icon icon-blue">💰</div>
+                <h4>Payroll Summary</h4>
+                <p>Comprehensive overview of payroll expenses, gross pay, deductions, and net pay by period</p>
+            </div>
+
+            <div class="report-card" onclick="showReport('employee-earnings')">
+                <div class="report-icon icon-green">👥</div>
+                <h4>Employee Earnings Report</h4>
+                <p>Individual employee earnings breakdown including basic salary, overtime, and bonuses</p>
+            </div>
+
+            <div class="report-card" onclick="showReport('deductions')">
+                <div class="report-icon icon-orange">📉</div>
+                <h4>Deductions Report</h4>
+                <p>Detailed breakdown of SSS, PhilHealth, Pag-IBIG, and tax deductions</p>
+            </div>
+
+            <div class="report-card" onclick="showReport('department-costs')">
+                <div class="report-icon icon-purple">🏢</div>
+                <h4>Department Costs</h4>
+                <p>Payroll costs grouped by department with comparative analysis</p>
+            </div>
+
+            <div class="report-card" onclick="showReport('tax-summary')">
+                <div class="report-icon icon-red">📊</div>
+                <h4>Tax Summary Report</h4>
+                <p>Withholding tax summary and compliance report for tax filing</p>
+            </div>
+
+            <div class="report-card" onclick="showReport('contribution-summary')">
+                <div class="report-icon icon-teal">🏦</div>
+                <h4>Contribution Summary</h4>
+                <p>Government contributions (SSS, PhilHealth, Pag-IBIG) remittance report</p>
+            </div>
+        </div>
+
+        <!-- Report Table Container -->
+        <div id="reportTableContainer" class="report-table-container">
+            <div class="report-header">
+                <h3 id="reportTitle"></h3>
+                <div>
+                    <button class="btn btn-export" onclick="exportReport()">📥 Export to Excel</button>
+                    <button class="back-btn" onclick="closeReport()">← Back</button>
+                </div>
+            </div>
+
+            <div id="reportContent">
+                <div class="loading">Loading report data...</div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+// Set current date
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+});
+
+// Set default date range (current month)
+const today = new Date();
+const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+document.getElementById('fromDate').valueAsDate = firstDay;
+document.getElementById('toDate').valueAsDate = today;
+
+let currentReportType = '';
+
+function applyFilters() {
+    if (currentReportType) {
+        loadReportData(currentReportType);
+    } else {
+        alert('Please select a report first');
+    }
+}
+
+function resetFilters() {
+    document.getElementById('fromDate').valueAsDate = firstDay;
+    document.getElementById('toDate').valueAsDate = today;
+    document.getElementById('department').value = '';
+    document.getElementById('status').value = '';
+}
+
+function getFilterParams() {
+    const from = document.getElementById('fromDate').value;
+    const to = document.getElementById('toDate').value;
+    const dept = document.getElementById('department').value;
+    
+    let params = '';
+    if (from) params += `from=${from}&`;
+    if (to) params += `to=${to}&`;
+    if (dept) params += `department=${dept}&`;
+    
+    return params;
+}
+
+function showReport(reportType) {
+    currentReportType = reportType;
+    document.getElementById('reportsGrid').style.display = 'none';
+    document.getElementById('reportTableContainer').classList.add('active');
+    
+    const titles = {
+        'payroll-summary': 'Payroll Summary Report',
+        'employee-earnings': 'Employee Earnings Report',
+        'deductions': 'Deductions Report',
+        'department-costs': 'Department Costs Report',
+        'tax-summary': 'Tax Summary Report',
+        'contribution-summary': 'Contribution Summary Report'
+    };
+    
+    document.getElementById('reportTitle').textContent = titles[reportType];
+    document.getElementById('reportContent').innerHTML = '<div class="loading">Loading report data...</div>';
+    
+    loadReportData(reportType);
+}
+
+function closeReport() {
+    currentReportType = '';
+    document.getElementById('reportTableContainer').classList.remove('active');
+    document.getElementById('reportsGrid').style.display = 'grid';
+}
+
+function loadReportData(reportType) {
+    const params = getFilterParams();
+    const apiEndpoints = {
+        'payroll-summary': '/api/reports/payroll-summary',
+        'employee-earnings': '/api/reports/employee-earnings',
+        'deductions': '/api/reports/deductions',
+        'department-costs': '/api/reports/department-costs',
+        'tax-summary': '/api/reports/tax-summary',
+        'contribution-summary': '/api/reports/contribution-summary'
+    };
+    
+    fetch(`${apiEndpoints[reportType]}?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            const content = document.getElementById('reportContent');
+            
+            switch(reportType) {
+                case 'payroll-summary':
+                    content.innerHTML = generatePayrollSummary(data);
+                    break;
+                case 'employee-earnings':
+                    content.innerHTML = generateEmployeeEarnings(data);
+                    break;
+                case 'deductions':
+                    content.innerHTML = generateDeductions(data);
+                    break;
+                case 'department-costs':
+                    content.innerHTML = generateDepartmentCosts(data);
+                    break;
+                case 'tax-summary':
+                    content.innerHTML = generateTaxSummary(data);
+                    break;
+                case 'contribution-summary':
+                    content.innerHTML = generateContributionSummary(data);
+                    break;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('reportContent').innerHTML = `
+                <div class="loading">Error loading report data. Please try again.</div>
+            `;
+        });
+}
+
+function formatCurrency(amount) {
+    return '₱' + parseFloat(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function generatePayrollSummary(data) {
+    const summary = data.summary || {total_gross: 0, total_deductions: 0, total_net: 0};
+    const records = data.records || [];
+    
+    let html = `
+        <div class="summary-cards">
+            <div class="summary-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5>Total Gross Pay</h5>
+                <div class="amount">${formatCurrency(summary.total_gross)}</div>
+            </div>
+            <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h5>Total Deductions</h5>
+                <div class="amount">${formatCurrency(summary.total_deductions)}</div>
+            </div>
+            <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h5>Total Net Pay</h5>
+                <div class="amount">${formatCurrency(summary.total_net)}</div>
+            </div>
+        </div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Employees</th>
+                    <th>Gross Pay</th>
+                    <th>SSS</th>
+                    <th>PhilHealth</th>
+                    <th>Pag-IBIG</th>
+                    <th>Tax</th>
+                    <th>Net Pay</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (records.length === 0) {
+        html += '<tr><td colspan="8" style="text-align:center; padding:40px;">No data available</td></tr>';
+    } else {
+        records.forEach(r => {
+            html += `
+                <tr>
+                    <td>${r.period}</td>
+                    <td>${r.employees}</td>
+                    <td>${formatCurrency(r.gross_pay)}</td>
+                    <td>${formatCurrency(r.sss)}</td>
+                    <td>${formatCurrency(r.philhealth)}</td>
+                    <td>${formatCurrency(r.pagibig)}</td>
+                    <td>${formatCurrency(r.tax)}</td>
+                    <td>${formatCurrency(r.net_pay)}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += '</tbody></table>';
+    return html;
+}
+
+function generateEmployeeEarnings(data) {
+    const records = data.records || [];
+    
+    let html = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th>Basic Salary</th>
+                    <th>Total Gross Pay</th>
+                    <th>Payroll Count</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (records.length === 0) {
+        html += '<tr><td colspan="7" style="text-align:center; padding:40px;">No data available</td></tr>';
+    } else {
+        records.forEach(r => {
+            html += `
+                <tr>
+                    <td>${r.employee_id}</td>
+                    <td>${r.name}</td>
+                    <td>${r.department}</td>
+                    <td>${r.position}</td>
+                    <td>${formatCurrency(r.basic_salary)}</td>
+                    <td>${formatCurrency(r.total_gross)}</td>
+                    <td>${r.payroll_count}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += '</tbody></table>';
+    return html;
+}
+
+function generateDeductions(data) {
+    const summary = data.summary || {total_sss: 0, total_philhealth: 0, total_pagibig: 0, total_tax: 0};
+    const records = data.records || [];
+    
+    let html = `
+        <div class="summary-cards">
+            <div class="summary-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <h5>Total SSS</h5>
+                <div class="amount">${formatCurrency(summary.total_sss)}</div>
+            </div>
+            <div class="summary-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                <h5>Total PhilHealth</h5>
+                <div class="amount">${formatCurrency(summary.total_philhealth)}</div>
+            </div>
+            <div class="summary-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                <h5>Total Pag-IBIG</h5>
+                <div class="amount">${formatCurrency(summary.total_pagibig)}</div>
+            </div>
+            <div class="summary-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                <h5>Total Tax</h5>
+                <div class="amount">${formatCurrency(summary.total_tax)}</div>
+            </div>
+        </div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>SSS</th>
+                    <th>PhilHealth</th>
+                    <th>Pag-IBIG</th>
+                    <th>Withholding Tax</th>
+                    <th>Total Deductions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (records.length === 0) {
+        html += '<tr><td colspan="8" style="text-align:center; padding:40px;">No data available</td></tr>';
+    } else {
+        records.forEach(r => {
+            html += `
+                <tr>
+                    <td>${r.employee_id}</td>
+                    <td>${r.name}</td>
+                    <td>${r.department}</td>
+                    <td>${formatCurrency(r.sss)}</td>
+                    <td>${formatCurrency(r.philhealth)}</td>
+                    <td>${formatCurrency(r.pagibig)}</td>
+                    <td>${formatCurrency(r.tax)}</td>
+                    <td>${formatCurrency(r.total_deductions)}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += '</tbody></table>';
+    return html;
+}
+
+function generateDepartmentCosts(data) {
+    const records = data.records || [];
+    
+    let html = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Department</th>
+                    <th>Employees</th>
+                    <th>Total Gross Pay</th>
+                    <th>Total Deductions</th>
+                    <th>Total Net Pay</th>
+                    <th>% of Total Payroll</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (records.length === 0) {
+        html += '<tr><td colspan="6" style="text-align:center; padding:40px;">No data available</td></tr>';
+    } else {
+        records.forEach(r => {
+            html += `
+                <tr>
+                    <td>${r.department}</td>
+                    <td>${r.employees}</td>
+                    <td>${formatCurrency(r.total_gross_pay)}</td>
+                    <td>${formatCurrency(r.total_deductions)}</td>
+                    <td>${formatCurrency(r.total_net_pay)}</td>
+                    <td>${r.percentage.toFixed(1)}%</td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += '</tbody></table>';
+    return html;
+}
+
+function generateTaxSummary(data) {
+    const summary = data.summary || {total_employees: 0, total_tax: 0, average_tax: 0};
+    
+    return `
+        <div class="summary-cards">
+            <div class="summary-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h5>Total Withholding Tax</h5>
+                <div class="amount">${formatCurrency(summary.total_tax)}</div>
+            </div>
+            <div class="summary-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h5>Employees Taxed</h5>
+                <div class="amount">${summary.total_employees}</div>
+            </div>
+            <div class="summary-card" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                <h5>Average Tax per Employee</h5>
+                <div class="amount">${formatCurrency(summary.average_tax)}</div>
+            </div>
+        </div>
+    `;
+}
+
+function generateContributionSummary(data) {
+    const records = data.records || [];
+    
+    let html = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Contribution Type</th>
+                    <th>Employee Share</th>
+                    <th>Employer Share</th>
+                    <th>Total Remittance</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    if (records.length === 0) {
+        html += '<tr><td colspan="4" style="text-align:center; padding:40px;">No data available</td></tr>';
+    } else {
+        records.forEach(r => {
+            html += `
+                <tr>
+                    <td>${r.type}</td>
+                    <td>${formatCurrency(r.employee_share)}</td>
+                    <td>${formatCurrency(r.employer_share)}</td>
+                    <td>${formatCurrency(r.total_remittance)}</td>
+                </tr>
+            `;
+        });
+    }
+    
+    html += '</tbody></table>';
+    return html;
+}
+
+function exportReport() {
+    alert('Export feature will be implemented soon. This will download the current report as Excel file.');
+}
+</script>
+
+</body>
+</html>

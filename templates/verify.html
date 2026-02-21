@@ -1,0 +1,5 @@
+<form method="POST" action="/verify-otp">
+    <input type="hidden" name="email" value="{{.Email}}">
+    <input type="text" name="otp" placeholder="Enter OTP" required>
+    <button type="submit">Verify OTP</button>
+</form>

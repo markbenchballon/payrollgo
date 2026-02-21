@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Employee</title>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --radius: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,.08);
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            background: #eef2ff;
+            color: var(--primary-dark);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+            background: #fff;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+        }
+
+        .section {
+            margin-top: 30px;
+        }
+
+        .section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 22px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        #salary-preview {
+            margin-top: 8px;
+            padding: 10px;
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+    <div class="card">
+
+        <div class="header">
+            <h2>Edit Employee</h2>
+            <span class="badge">{{.employee.EmployeeID}}</span>
+        </div>
+
+        <form action="/hr/edit/{{.employee.EmployeeID}}" method="POST" id="editForm">
+
+            <input type="hidden" name="basic_salary" id="basic_salary" value="{{.employee.BasicSalary}}">
+
+           <!-- BASIC INFO -->
+<div class="section">
+    <h3>Basic Information</h3>
+    <div class="grid">
+        <div>
+            <label>First Name</label>
+            <input type="text" name="first_name" value="{{.employee.FirstName}}" required>
+        </div>
+        <div>
+            <label>Last Name</label>
+            <input type="text" name="last_name" value="{{.employee.LastName}}" required>
+        </div>
+        <div>
+            <label>Email</label>
+            <input type="email" name="email" value="{{.employee.Email}}">
+        </div>
+        <div>
+            <label>Contact</label>
+            <input type="text" name="contact" id="contact" value="{{.employee.Contact}}" maxlength="11" required>
+        </div>
+        <div style="grid-column: span 2;">
+            <label>Complete Address</label>
+            <input type="text" name="address" id="address" value="{{.employee.Address}}" maxlength="255" required>
+        </div>
+        <div>
+            <label>Civil Status</label>
+            <select name="civil_status">
+                <option value="Single" {{if eq .employee.CivilStatus "Single"}}selected{{end}}>Single</option>
+                <option value="Married" {{if eq .employee.CivilStatus "Married"}}selected{{end}}>Married</option>
+            </select>
+        </div>
+        <div>
+            <label>Gender</label>
+            <select name="gender">
+                <option value="Male" {{if eq .employee.Gender "Male"}}selected{{end}}>Male</option>
+                <option value="Female" {{if eq .employee.Gender "Female"}}selected{{end}}>Female</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+            <!-- JOB INFO -->
+<div class="section">
+    <h3>Job Details</h3>
+    <div class="grid">
+        <div>
+            <label>Position</label>
+            <input type="text" name="position" value="{{.employee.Position}}">
+        </div>
+        <div>
+            <label>Department</label>
+            <select name="department">
+                <option value="HR" {{if eq .employee.Department "HR"}}selected{{end}}>HR</option>
+                <option value="IT" {{if eq .employee.Department "IT"}}selected{{end}}>IT</option>
+                <option value="Finance" {{if eq .employee.Department "Finance"}}selected{{end}}>Finance</option>
+                <option value="Operations" {{if eq .employee.Department "Operations"}}selected{{end}}>Operations</option>
+                <option value="Sales" {{if eq .employee.Department "Sales"}}selected{{end}}>Sales</option>
+            </select>
+        </div>
+        <div>
+            <label>Career Level</label>
+            <select name="career_level" id="career_level" required>
+                <option value="">Select Career Level</option>
+            </select>
+        </div>
+        <div>
+            <label>Job Grade</label>
+            <select name="job_grade" id="job_grade">
+                <option value="">Select Job Grade</option>
+            </select>
+            <div id="salary-preview">
+                <em>Current: ₱{{.employee.BasicSalary}}</em>
+            </div>
+        </div>
+        <div>
+            <label>Salary Type</label>
+            <select name="salary_type">
+                <option value="Monthly" {{if eq .employee.SalaryType "Monthly"}}selected{{end}}>Monthly</option>
+                <option value="Daily" {{if eq .employee.SalaryType "Daily"}}selected{{end}}>Daily</option>
+            </select>
+        </div>
+        <!-- ✅ UPDATED STATUS DROPDOWN -->
+        <div>
+            <label>Status</label>
+            <select name="status" required>
+                <option value="Active" {{if eq .employee.Status "Active"}}selected{{end}}>✅ Active</option>
+                <option value="Inactive" {{if eq .employee.Status "Inactive"}}selected{{end}}>❌ Inactive</option>
+                <option value="On Leave" {{if eq .employee.Status "On Leave"}}selected{{end}}>📅 On Leave</option>
+                <option value="Terminated" {{if eq .employee.Status "Terminated"}}selected{{end}}>⛔ Terminated</option>
+            </select>
+        </div>
+        <!-- ✅ NEW: ROLE DROPDOWN (if wala pa) -->
+        <div>
+            <label>Role</label>
+            <select name="role" required>
+                <option value="Employee" {{if eq .employee.Role "Employee"}}selected{{end}}>Employee</option>
+                <option value="Supervisor" {{if eq .employee.Role "Supervisor"}}selected{{end}}>Supervisor</option>
+                <option value="Manager" {{if eq .employee.Role "Manager"}}selected{{end}}>Manager</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+           <!-- GOVERNMENT -->
+<div class="section">
+    <h3>Government Information</h3>
+    <div class="grid">
+        <div>
+            <label>SSS</label>
+            <input type="text" name="sss" id="sss" value="{{.employee.SSS}}" readonly style="background: #f3f4f6; cursor: not-allowed;">
+        </div>
+        <div>
+            <label>Pag-IBIG</label>
+            <input type="text" name="pagibig" id="pagibig" value="{{.employee.PagIBIG}}" readonly style="background: #f3f4f6; cursor: not-allowed;">
+        </div>
+        <div>
+            <label>PhilHealth</label>
+            <input type="text" name="philhealth" id="philhealth" value="{{.employee.PhilHealth}}" readonly style="background: #f3f4f6; cursor: not-allowed;">
+        </div>
+        <div>
+            <label>TIN</label>
+            <input type="text" name="tin" id="tin" value="{{.employee.TIN}}" readonly style="background: #f3f4f6; cursor: not-allowed;">
+        </div>
+        <div>
+            <label>Date Hired</label>
+            <input type="date" name="date_hired" value="{{.employee.DateHired}}" readonly style="background: #f3f4f6; cursor: not-allowed;">
+        </div>
+    </div>
+</div>
+
+            <!-- ACTIONS -->
+            <div class="actions">
+                {{if eq .role "admin"}}
+                <a href="/admin/employees" class="btn btn-secondary">Cancel</a>
+                {{else}}
+                <a href="/hr/dashboard" class="btn btn-secondary">Cancel</a>
+                {{end}}
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+// Job grade salary data and career levels
+let jobGradeSalaries = [];
+let careerLevels = [];
+let selectedCareerLevel = null;
+
+// Current employee data
+const currentCareerLevel = "{{.employee.CareerLevel}}";
+const currentJobGrade = {{.employee.JobGrade}};
+
+// Load career levels
+async function loadCareerLevels() {
+    try {
+        const response = await fetch('/api/career-levels');
+        if (response.ok) {
+            careerLevels = await response.json();
+            console.log('✅ Career levels loaded:', careerLevels);
+            
+            // Populate career level dropdown
+            const careerLevelSelect = document.getElementById('career_level');
+            careerLevels.forEach(level => {
+                const option = document.createElement('option');
+                option.value = level.level;
+                option.textContent = level.level;
+                if (level.level === currentCareerLevel) {
+                    option.selected = true;
+                }
+                careerLevelSelect.appendChild(option);
+            });
+
+            // Trigger change to load job grades for current career level
+            if (currentCareerLevel) {
+                careerLevelSelect.dispatchEvent(new Event('change'));
+            }
+        }
+    } catch (error) {
+        console.error('Error loading career levels:', error);
+    }
+}
+
+// Load job grades
+async function loadJobGrades() {
+    try {
+        const response = await fetch('/api/job-grades');
+        if (response.ok) {
+            jobGradeSalaries = await response.json();
+            console.log('✅ Job grades loaded:', jobGradeSalaries);
+        }
+    } catch (error) {
+        console.error('Error loading job grades:', error);
+    }
+}
+
+// When career level changes, filter job grades
+document.getElementById('career_level').addEventListener('change', function() {
+    const selectedLevel = this.value;
+    selectedCareerLevel = careerLevels.find(level => level.level === selectedLevel);
+    
+    if (selectedCareerLevel) {
+        // Clear and repopulate job grade dropdown
+        const jobGradeSelect = document.getElementById('job_grade');
+        jobGradeSelect.innerHTML = '<option value="">Select Job Grade</option>';
+        
+        // Filter job grades based on career level
+        const filteredGrades = jobGradeSalaries.filter(grade => 
+            grade.grade >= selectedCareerLevel.min_grade && 
+            grade.grade <= selectedCareerLevel.max_grade
+        );
+        
+        filteredGrades.forEach(grade => {
+            const option = document.createElement('option');
+            option.value = grade.grade;
+            option.textContent = `Grade ${grade.grade}`;
+            if (grade.grade === currentJobGrade) {
+                option.selected = true;
+            }
+            jobGradeSelect.appendChild(option);
+        });
+        
+        // Enable job grade dropdown
+        jobGradeSelect.disabled = false;
+        
+        // If current job grade is selected, show its salary
+        if (currentJobGrade) {
+            const salaryData = jobGradeSalaries.find(s => s.grade === currentJobGrade);
+            if (salaryData) {
+                document.getElementById('salary-preview').innerHTML = `
+                    <strong>Basic Salary:</strong> ₱${salaryData.salary.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                    <br><small>${salaryData.title}</small>
+                `;
+            }
+        }
+        
+        console.log(`✅ Filtered ${filteredGrades.length} job grades for ${selectedLevel}`);
+    }
+});
+
+// Auto-update salary when job grade changes
+document.getElementById('job_grade').addEventListener('change', function() {
+    const selectedGrade = parseInt(this.value);
+    const salaryData = jobGradeSalaries.find(s => s.grade === selectedGrade);
+    
+    if (salaryData) {
+        // Update hidden basic_salary field
+        document.getElementById('basic_salary').value = salaryData.salary;
+        
+        // Display salary preview
+        const salaryPreview = document.getElementById('salary-preview');
+        if (salaryPreview) {
+            salaryPreview.innerHTML = `
+                <strong>Basic Salary:</strong> ₱${salaryData.salary.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                <br><small>${salaryData.title}</small>
+            `;
+        }
+        console.log(`✅ Grade ${selectedGrade}: ₱${salaryData.salary} - ${salaryData.title}`);
+    }
+});
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', async function() {
+    await loadJobGrades();
+    await loadCareerLevels();
+});
+
+// Only numbers allowed
+function onlyNumbers(e) {
+    if (!/[0-9]/.test(e.key) &&
+        e.key !== "Backspace" &&
+        e.key !== "ArrowLeft" &&
+        e.key !== "ArrowRight") {
+        e.preventDefault();
+    }
+}
+['contact','sss','pagibig','philhealth','tin'].forEach(id => {
+    document.getElementById(id)?.addEventListener('keypress', onlyNumbers);
+});
+
+// Auto-format IDs
+const formatSSS = (val) => val.length>5?val.slice(0,3)+'-'+val.slice(3,5)+'-'+val.slice(5):val.length>3?val.slice(0,3)+'-'+val.slice(3):val;
+document.getElementById('sss').addEventListener('input', function(){ 
+    this.value=formatSSS(this.value.replace(/\D/g,'').slice(0,10)); 
+});
+
+const formatPhil = (val)=> val.length>9?val.slice(0,2)+'-'+val.slice(2,9)+'-'+val.slice(9):val.length>2?val.slice(0,2)+'-'+val.slice(2):val;
+document.getElementById('philhealth').addEventListener('input', function(){ 
+    this.value=formatPhil(this.value.replace(/\D/g,'').slice(0,12)); 
+});
+
+const formatPag = (val)=> val.length>8?val.slice(0,4)+'-'+val.slice(4,8)+'-'+val.slice(8):val.length>4?val.slice(0,4)+'-'+val.slice(4):val;
+document.getElementById('pagibig').addEventListener('input', function(){ 
+    this.value=formatPag(this.value.replace(/\D/g,'').slice(0,12)); 
+});
+
+const formatTIN = (val)=> val.length>9?val.slice(0,3)+'-'+val.slice(3,6)+'-'+val.slice(6,9)+'-'+val.slice(9):val.length>6?val.slice(0,3)+'-'+val.slice(3,6)+'-'+val.slice(6):val.length>3?val.slice(0,3)+'-'+val.slice(3):val;
+document.getElementById('tin').addEventListener('input', function(){ 
+    this.value=formatTIN(this.value.replace(/\D/g,'').slice(0,12)); 
+});
+</script>
+
+</body>
+</html>

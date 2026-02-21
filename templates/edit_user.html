@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit User</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f1f5f9;
+    margin: 0;
+    padding: 40px;
+}
+
+/* Container */
+.container {
+    max-width: 520px;
+    margin: auto;
+}
+
+/* Card */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    padding: 30px;
+}
+
+/* Header */
+.card h2 {
+    margin-bottom: 25px;
+    font-weight: 600;
+    color: #1e293b;
+    text-align: center;
+}
+
+/* Form Group */
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #334155;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #3b82f6;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+/* Back Link */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    text-decoration: none;
+    color: #475569;
+    font-size: 14px;
+}
+
+.back-link:hover {
+    color: #1e293b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Edit User</h2>
+
+        <form method="POST" action="/users/edit/{{.user.ID}}">
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" value="{{.user.Username}}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" value="{{.user.Name}}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Password <small style="color:#64748b;">(leave blank to keep current)</small></label>
+                <input type="password" name="password">
+            </div>
+
+            <div class="form-group">
+                <label>Gmail</label>
+                <input type="email" name="gmail" value="{{.user.Gmail}}" required>
+            </div>
+
+            <div class="form-group">
+    <label>Role</label>
+    <select name="role" required>
+        <option value="admin" {{if eq .user.Role "admin"}}selected{{end}}>Admin</option>
+        <option value="hr" {{if eq .user.Role "hr"}}selected{{end}}>HR</option>
+        <option value="manager" {{if eq .user.Role "manager"}}selected{{end}}>Manager</option>
+        <option value="supervisor" {{if eq .user.Role "supervisor"}}selected{{end}}>Supervisor</option>
+        <option value="employee" {{if eq .user.Role "employee"}}selected{{end}}>Employee</option>
+    </select>
+</div>
+
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <a href="/users" class="back-link">⬅ Back to Users List</a>
+    </div>
+</div>
+
+</body>
+</html>

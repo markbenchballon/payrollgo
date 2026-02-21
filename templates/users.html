@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manage Users - Payroll GO</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #eef2f7;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #3f5efb, #4b7bec);
+    color: #fff;
+    padding: 25px 20px;
+}
+
+.sidebar h2 {
+    font-size: 22px;
+    margin-bottom: 40px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 18px;
+}
+
+.sidebar ul li a {
+    color: #eaf0ff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: background 0.3s;
+    font-size: 14px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 25px 35px;
+}
+
+/* Top bar */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.topbar h1 {
+    font-size: 26px;
+    color: #2c3e50;
+}
+
+.date {
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+/* Messages */
+.message {
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.message.error { 
+    background: #fee2e2; 
+    color: #b91c1c;
+    border-left: 4px solid #dc2626;
+}
+
+.message.success { 
+    background: #d1fae5; 
+    color: #065f46;
+    border-left: 4px solid #10b981;
+}
+
+/* Tabs */
+.tabs-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+.tabs {
+    display: flex;
+    background: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab {
+    flex: 1;
+    padding: 18px 25px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: #6b7280;
+    transition: all 0.3s;
+    position: relative;
+    font-size: 15px;
+}
+
+.tab:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.tab.active {
+    color: #4f46e5;
+    background: white;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #4f46e5;
+}
+
+.tab-badge {
+    background: #fbbf24;
+    color: #78350f;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 8px;
+    font-weight: 700;
+}
+
+.tab.active .tab-badge {
+    background: #4f46e5;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    padding: 25px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Search Bar */
+.search-container {
+    margin-bottom: 20px;
+}
+
+.search-box {
+    width: 100%;
+    padding: 12px 20px;
+    padding-left: 45px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 15px center;
+}
+
+.search-box:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* User Cards */
+.user-card {
+    background: white;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border-left: 6px solid #4f46e5;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.user-card.pending {
+    border-left-color: #fbbf24;
+    background: #fffbeb;
+}
+
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.user-name {
+    margin: 0;
+    font-size: 18px;
+    color: #1f2937;
+}
+
+.user-meta {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 5px 0 0 0;
+}
+
+.role-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.role-admin {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.role-hr {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+
+.role-manager {
+    background: #fce7f3;
+    color: #9f1239;
+}
+
+.role-employee {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.user-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.grid-item strong {
+    color: #4f46e5;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+.grid-item {
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Buttons */
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.btn-create {
+    background: #10b981;
+    color: white;
+}
+
+.btn-create:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.btn-edit {
+    background: #4f46e5;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #4338ca;
+}
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px;
+    color: #6b7280;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+    
+    .user-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Payroll</h2>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/admin/employees">Employees</a></li>
+            <li><a href="/admin/payroll">Payroll</a></li>
+            <li><a href="/admin/reports">Reports</a></li>
+            <li><a class="active" href="/users">Users</a></li>
+            <li><a href="/admin/settings">Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <div class="topbar">
+            <h1>👤 Manage Users</h1>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <a href="/users/add" class="btn btn-create" style="text-decoration: none;">➕ Add New User</a>
+                <div class="date">February 10, 2026</div>
+            </div>
+        </div>
+
+        {{if .error}}
+        <div class="message error">{{.error}}</div>
+        {{end}}
+
+        {{if .success}}
+        <div class="message success">{{.success}}</div>
+        {{end}}
+
+        <!-- Tabs Container -->
+        <div class="tabs-container">
+            
+            <!-- Tab Headers -->
+            <div class="tabs">
+                <div class="tab active" onclick="openTab(event, 'pendingTab')">
+                    ⏳ Pending Employees 
+                    <span class="tab-badge">{{len .pendingEmployees}}</span>
+                </div>
+                <div class="tab" onclick="openTab(event, 'activeTab')">
+                    ✅ Active Users 
+                    <span class="tab-badge">{{len .users}}</span>
+                </div>
+            </div>
+
+            <!-- Pending Employees Tab -->
+            <div id="pendingTab" class="tab-content active">
+                
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="pendingSearch" 
+                        class="search-box" 
+                        placeholder="🔍 Search by Employee ID or Name..."
+                        onkeyup="searchPending()"
+                    >
+                </div>
+
+                <div id="pendingContainer">
+                    {{if .pendingEmployees}}
+                        {{range .pendingEmployees}}
+                        <div class="user-card pending" data-id="{{.EmployeeID}}" data-name="{{.FirstName}} {{.LastName}}">
+                            <div class="user-header">
+                                <div>
+                                    <h3 class="user-name">{{.FirstName}} {{.LastName}}</h3>
+                                    <p class="user-meta">{{.EmployeeID}} • {{.Position}} • {{.Department}}</p>
+                                </div>
+                                <a href="/users/create-account/{{.EmployeeID}}">
+                                    <button class="btn btn-create">✅ Create Account</button>
+                                </a>
+                            </div>
+                            
+                            <div class="user-grid">
+                                <div class="grid-item">
+                                    <strong>Email</strong>
+                                    {{.Email}}
+                                </div>
+                                <div class="grid-item">
+                                    <strong>Position</strong>
+                                    {{.Position}}
+                                </div>
+                                <div class="grid-item">
+                                    <strong>Department</strong>
+                                    {{.Department}}
+                                </div>
+                            </div>
+                        </div>
+                        {{end}}
+                        <div id="noPendingResults" class="no-results" style="display:none;">
+                            🔍 No pending employees found matching your search.
+                        </div>
+                    {{else}}
+                    <div class="empty-state">
+                        <p>✅ No pending employees. All employees have accounts!</p>
+                    </div>
+                    {{end}}
+                </div>
+
+            </div>
+
+            <!-- Active Users Tab -->
+            <div id="activeTab" class="tab-content">
+                
+                <div class="search-container">
+                    <input 
+                        type="text" 
+                        id="activeSearch" 
+                        class="search-box" 
+                        placeholder="🔍 Search by Username or Name..."
+                        onkeyup="searchActive()"
+                    >
+                </div>
+
+                <div id="activeContainer">
+                    {{if .users}}
+                        {{range .users}}
+                        <div class="user-card" data-username="{{.Username}}" data-name="{{.Name}}">
+                            <div class="user-header">
+    <div>
+        <h3 class="user-name">{{.Name}}</h3>
+        <p class="user-meta">@{{.Username}} • {{.Gmail}}</p>
+        {{if .ApprovedBy}}
+        <p style="font-size: 11px; color: #6b7280; margin-top: 5px;">
+            ✅ Account created by: <strong style="color: #4f46e5;">{{.ApprovedBy}}</strong>
+        </p>
+        {{end}}
+    </div>
+                                {{if eq .Role "admin"}}
+                                <span class="role-badge role-admin">👑 ADMIN</span>
+                                {{else if eq .Role "hr"}}
+                                <span class="role-badge role-hr">👔 HR</span>
+                                {{else if eq .Role "manager"}}
+                                <span class="role-badge role-manager">📊 MANAGER</span>
+                                {{else}}
+                                <span class="role-badge role-employee">👤 EMPLOYEE</span>
+                                {{end}}
+                            </div>
+                            
+                            <div class="user-grid">
+                                <div class="grid-item">
+                                    <strong>Username</strong>
+                                    {{.Username}}
+                                </div>
+                                <div class="grid-item">
+                                    <strong>Email</strong>
+                                    {{.Gmail}}
+                                </div>
+                                <div class="grid-item">
+                                    <strong>Role</strong>
+                                    {{.Role}}
+                                </div>
+                            </div>
+                            
+                            <div class="btn-group">
+                                <a href="/users/edit/{{.ID}}" class="btn btn-edit">
+                                    ✏️ Edit User
+                                </a>
+                                <a href="/users/delete/{{.ID}}" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this user?')">
+                                    🗑️ Delete User
+                                </a>
+                            </div>
+                        </div>
+                        {{end}}
+                        <div id="noActiveResults" class="no-results" style="display:none;">
+                            🔍 No users found matching your search.
+                        </div>
+                    {{else}}
+                    <div class="empty-state">
+                        <p>👥 No active users found.</p>
+                    </div>
+                    {{end}}
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script>
+// Tab switching function
+function openTab(evt, tabName) {
+    var i, tabContent, tabs;
+    
+    // Hide all tab contents
+    tabContent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabContent.length; i++) {
+        tabContent[i].classList.remove("active");
+    }
+    
+    // Remove active class from all tabs
+    tabs = document.getElementsByClassName("tab");
+    for (i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove("active");
+    }
+    
+    // Show current tab and add active class
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+
+// Search function for pending employees
+function searchPending() {
+    var input = document.getElementById("pendingSearch");
+    var filter = input.value.toLowerCase();
+    var cards = document.querySelectorAll("#pendingContainer .user-card");
+    var noResults = document.getElementById("noPendingResults");
+    var visibleCount = 0;
+    
+    cards.forEach(function(card) {
+        var id = card.getAttribute("data-id").toLowerCase();
+        var name = card.getAttribute("data-name").toLowerCase();
+        
+        if (id.indexOf(filter) > -1 || name.indexOf(filter) > -1) {
+            card.style.display = "";
+            visibleCount++;
+        } else {
+            card.style.display = "none";
+        }
+    });
+    
+    // Show/hide no results message
+    if (visibleCount === 0 && cards.length > 0) {
+        noResults.style.display = "block";
+    } else {
+        noResults.style.display = "none";
+    }
+}
+
+// Search function for active users
+function searchActive() {
+    var input = document.getElementById("activeSearch");
+    var filter = input.value.toLowerCase();
+    var cards = document.querySelectorAll("#activeContainer .user-card");
+    var noResults = document.getElementById("noActiveResults");
+    var visibleCount = 0;
+    
+    cards.forEach(function(card) {
+        var username = card.getAttribute("data-username").toLowerCase();
+        var name = card.getAttribute("data-name").toLowerCase();
+        
+        if (username.indexOf(filter) > -1 || name.indexOf(filter) > -1) {
+            card.style.display = "";
+            visibleCount++;
+        } else {
+            card.style.display = "none";
+        }
+    });
+    
+    // Show/hide no results message
+    if (visibleCount === 0 && cards.length > 0) {
+        noResults.style.display = "block";
+    } else {
+        noResults.style.display = "none";
+    }
+}
+</script>
+
+</body>
+</html>

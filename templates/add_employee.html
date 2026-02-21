@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Employee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 30px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-top: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            outline: none;
+            background: #f9f9f9;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: #4CAF50;
+            background: #fff;
+        }
+
+        label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #fff;
+            padding: 0 4px;
+            color: #999;
+            font-size: 0.9em;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
+        input:focus + label,
+        input:not(:placeholder-shown) + label,
+        select:focus + label,
+        select:not([value=""]) + label {
+            top: -10px;
+            left: 10px;
+            font-size: 0.75em;
+            color: #4CAF50;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .section-title {
+            grid-column: span 2;
+            margin-top: 30px;
+            font-weight: 600;
+            color: #34495e;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .btn {
+            grid-column: span 2;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #45a049;
+        }
+
+        .error {
+            border-color: red;
+        }
+
+        #salary-preview {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 5px;
+            font-size: 14px;
+            position: relative;
+            top: 0;
+        }
+
+        @media(max-width: 700px){
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Add Employee</h2>
+    <form action="/hr/add" method="POST" id="addForm">
+        
+        <input type="hidden" name="basic_salary" id="basic_salary">
+
+        <!-- Personal Info -->
+        <div class="section-title">Personal Information</div>
+
+        <div class="form-group">
+            <input type="text" name="first_name" id="first_name" placeholder=" " required maxlength="50">
+            <label for="first_name">First Name</label>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="last_name" id="last_name" placeholder=" " required maxlength="50">
+            <label for="last_name">Last Name</label>
+        </div>
+
+        <div class="form-group full-width">
+            <input type="email" name="email" id="email" placeholder=" " maxlength="50">
+            <label for="email">Email</label>
+        </div>
+
+        <div class="form-group full-width">
+            <input type="text" name="contact" id="contact" placeholder=" " required maxlength="11">
+            <label for="contact">Contact Number</label>
+        </div>
+
+        <div class="form-group full-width">
+            <input type="text" name="address" id="address" placeholder=" " required maxlength="255">
+            <label for="address">Complete Address</label>
+        </div>
+
+        <div class="form-group">
+            <select name="civil_status" id="civil_status">
+                <option value="" disabled selected hidden></option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+            </select>
+            <label for="civil_status">Civil Status</label>
+        </div>
+
+        <div class="form-group">
+            <select name="gender" id="gender" required>
+                <option value="" disabled selected hidden></option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+            <label for="gender">Gender</label>
+        </div>
+
+        <!-- Job Info -->
+        <div class="section-title">Job Information</div>
+
+        <div class="form-group">
+            <input type="text" name="position" id="position" placeholder=" " maxlength="50">
+            <label for="position">Position</label>
+        </div>
+
+        <div class="form-group">
+            <select name="department" id="department" required>
+                <option value="" disabled selected hidden></option>
+                <option value="HR">HR</option>
+                <option value="IT">IT</option>
+                <option value="Finance">Finance</option>
+                <option value="Operations">Operations</option>
+                <option value="Sales">Sales</option>
+            </select>
+            <label for="department">Department</label>
+        </div>
+
+        <div class="form-group">
+            <select name="career_level" id="career_level" required>
+                <option value="" disabled selected hidden></option>
+            </select>
+            <label for="career_level">Career Level</label>
+        </div>
+
+        <div class="form-group">
+            <select name="job_grade" id="job_grade" required>
+                <option value="" disabled selected hidden></option>
+            </select>
+            <label for="job_grade">Job Grade</label>
+            <div id="salary-preview">
+                <em>Select a job grade to see salary</em>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <select name="status" id="status">
+                <option value="" disabled selected hidden></option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+            <label for="status">Status</label>
+        </div>
+
+        <div class="form-group">
+            <select name="role" id="role" required>
+                <option value="" disabled selected hidden></option>
+                <option value="Employee">Employee</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Manager">Manager</option>
+            </select>
+            <label for="role">Role</label>
+        </div>
+
+        <!-- Face Registration -->
+        <div class="section-title">📸 Face Registration (Required)</div>
+
+        <div class="full-width" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 12px; margin-top: 20px;">
+            <h3 style="color: white; margin-bottom: 15px; text-align: center;">📸 Register Employee Face</h3>
+            
+            <div id="modelLoadingStatus" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; text-align: center; margin-bottom: 15px; color: white; font-size: 14px;">
+                ⏳ Loading face recognition models, please wait...
+            </div>
+
+            <video id="videoElement" autoplay playsinline style="width: 100%; max-width: 400px; height: 300px; background: #000; border-radius: 10px; display: block; margin: 0 auto 15px;"></video>
+            <canvas id="canvas" style="display: none;"></canvas>
+            
+            <div id="faceCaptured" style="display: none; max-width: 400px; margin: 0 auto; text-align: center;">
+                <img id="capturedImage" style="width: 100%; border-radius: 10px; border: 3px solid #10b981; margin-bottom: 10px;">
+                <p style="color: white; font-weight: 600;">✅ Face Captured Successfully!</p>
+            </div>
+            
+            <div class="camera-buttons" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                <button type="button" id="startCameraBtn" style="padding: 12px 24px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;" disabled>📷 Start Camera</button>
+                <button type="button" id="captureFaceBtn" style="padding: 12px 24px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;" disabled>📸 Capture Face</button>
+                <button type="button" id="retakeBtn" style="padding: 12px 24px; background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: none;">🔄 Retake</button>
+                <button type="button" id="stopCameraBtn" style="padding: 12px 24px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;" disabled>⏹️ Stop</button>
+            </div>
+            
+            <input type="hidden" name="face_data" id="face_data" required>
+            <p id="faceStatus" style="text-align: center; color: white; margin-top: 10px; font-size: 14px;">⏳ Loading models first...</p>
+        </div>
+
+        <!-- Government Info -->
+        <div class="section-title">Government IDs</div>
+
+        <div class="form-group">
+            <input type="text" name="sss" id="sss" placeholder=" " maxlength="11">
+            <label for="sss">SSS</label>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="pagibig" id="pagibig" placeholder=" " maxlength="14">
+            <label for="pagibig">Pag-IBIG</label>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="philhealth" id="philhealth" placeholder=" " maxlength="14">
+            <label for="philhealth">PhilHealth</label>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="tin" id="tin" placeholder=" " maxlength="14">
+            <label for="tin">TIN</label>
+        </div>
+
+        <div class="form-group full-width">
+            <input type="date" 
+                   name="date_hired" 
+                   id="date_hired" 
+                   placeholder=" " 
+                   readonly 
+                   style="background-color: #f3f4f6; cursor: not-allowed;">
+            <label for="date_hired">Date Hired (Auto-set to Today)</label>
+        </div>
+
+        <button type="submit" class="btn">Add Employee</button>
+    </form>
+</div>
+
+<script>
+// ========================================
+// CAREER LEVEL & JOB GRADE
+// ========================================
+let jobGradeSalaries = [];
+let careerLevels = [];
+
+async function loadCareerLevels() {
+    try {
+        const response = await fetch('/api/career-levels');
+        if (response.ok) {
+            careerLevels = await response.json();
+            const careerLevelSelect = document.getElementById('career_level');
+            careerLevels.forEach(level => {
+                const option = document.createElement('option');
+                option.value = level.level;
+                option.textContent = level.level;
+                careerLevelSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading career levels:', error);
+    }
+}
+
+async function loadJobGrades() {
+    try {
+        const response = await fetch('/api/job-grades');
+        if (response.ok) {
+            jobGradeSalaries = await response.json();
+        }
+    } catch (error) {
+        console.error('Error loading job grades:', error);
+    }
+}
+
+document.getElementById('career_level').addEventListener('change', function() {
+    const selectedLevel = this.value;
+    const selectedCareerLevel = careerLevels.find(level => level.level === selectedLevel);
+    
+    if (selectedCareerLevel) {
+        const jobGradeSelect = document.getElementById('job_grade');
+        jobGradeSelect.innerHTML = '<option value="" disabled selected hidden></option>';
+        
+        const filteredGrades = jobGradeSalaries.filter(grade => 
+            grade.grade >= selectedCareerLevel.min_grade && 
+            grade.grade <= selectedCareerLevel.max_grade
+        );
+        
+        filteredGrades.forEach(grade => {
+            const option = document.createElement('option');
+            option.value = grade.grade;
+            option.textContent = `Grade ${grade.grade}`;
+            jobGradeSelect.appendChild(option);
+        });
+        
+        jobGradeSelect.disabled = false;
+        
+        document.getElementById('salary-preview').innerHTML = `
+            <em>Showing grades ${selectedCareerLevel.min_grade} - ${selectedCareerLevel.max_grade} for ${selectedLevel}</em>
+        `;
+    }
+});
+
+document.getElementById('job_grade').addEventListener('change', function() {
+    const selectedGrade = parseInt(this.value);
+    const salaryData = jobGradeSalaries.find(s => s.grade === selectedGrade);
+    
+    if (salaryData) {
+        document.getElementById('basic_salary').value = salaryData.salary;
+        document.getElementById('salary-preview').innerHTML = `
+            <strong>Basic Salary:</strong> ₱${salaryData.salary.toLocaleString('en-PH', {minimumFractionDigits: 2})}
+            <br><small>${salaryData.title}</small>
+        `;
+    }
+});
+
+// ========================================
+// INPUT VALIDATION
+// ========================================
+function onlyNumbers(e) {
+    const key = e.key;
+    if (!/[0-9]/.test(key) && key !== "Backspace" && key !== "ArrowLeft" && key !== "ArrowRight") {
+        e.preventDefault();
+    }
+}
+['contact','sss','philhealth','pagibig','tin'].forEach(id => {
+    document.getElementById(id)?.addEventListener('keypress', onlyNumbers);
+});
+
+const formatSSS = (val) => val.length>5?val.slice(0,3)+'-'+val.slice(3,5)+'-'+val.slice(5):val.length>3?val.slice(0,3)+'-'+val.slice(3):val;
+document.getElementById('sss')?.addEventListener('input', function(){ 
+    this.value=formatSSS(this.value.replace(/\D/g,'').slice(0,10)); 
+});
+
+const formatPhil = (val)=> val.length>9?val.slice(0,2)+'-'+val.slice(2,9)+'-'+val.slice(9):val.length>2?val.slice(0,2)+'-'+val.slice(2):val;
+document.getElementById('philhealth')?.addEventListener('input', function(){ 
+    this.value=formatPhil(this.value.replace(/\D/g,'').slice(0,12)); 
+});
+
+const formatPag = (val)=> val.length>8?val.slice(0,4)+'-'+val.slice(4,8)+'-'+val.slice(8):val.length>4?val.slice(0,4)+'-'+val.slice(4):val;
+document.getElementById('pagibig')?.addEventListener('input', function(){ 
+    this.value=formatPag(this.value.replace(/\D/g,'').slice(0,12)); 
+});
+
+const formatTIN = (val)=> val.length>9?val.slice(0,3)+'-'+val.slice(3,6)+'-'+val.slice(6,9)+'-'+val.slice(9):val.length>6?val.slice(0,3)+'-'+val.slice(3,6)+'-'+val.slice(6):val.length>3?val.slice(0,3)+'-'+val.slice(3):val;
+document.getElementById('tin')?.addEventListener('input', function(){ 
+    this.value=formatTIN(this.value.replace(/\D/g,'').slice(0,12)); 
+});
+
+const contactInput = document.getElementById('contact');
+contactInput?.addEventListener('input', function(){
+    if(this.value.length>11) this.value=this.value.slice(0,11);
+    this.classList.toggle('error', this.value.length!==11);
+});
+
+// ── First Name & Last Name: letters only, no numbers/special chars ──
+['first_name', 'last_name'].forEach(id => {
+    const input = document.getElementById(id);
+    input?.addEventListener('input', function () {
+        this.value = this.value.replace(/[^a-zA-Z\s]/g, '');
+    });
+    input?.addEventListener('keypress', function (e) {
+        if (!/[a-zA-Z\s]/.test(e.key)) e.preventDefault();
+    });
+});
+
+// ── Email: no spaces allowed ──
+document.getElementById('email')?.addEventListener('input', function () {
+    this.value = this.value.replace(/\s/g, '');
+});
+
+// ── Address: no special characters ──
+document.getElementById('address')?.addEventListener('input', function () {
+    this.value = this.value.replace(/[^a-zA-Z0-9\s,.\-#\/]/g, '');
+});
+
+// ✅ AUTO-SET DATE HIRED TO TODAY (READONLY)
+const dateInput = document.getElementById('date_hired');
+if (dateInput) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+    dateInput.readOnly = true;
+}
+
+// ✅ FORM SUBMIT VALIDATION
+document.getElementById('addForm').addEventListener('submit', function(e){
+    const todayDate = new Date().toISOString().split('T')[0];
+
+    // ── First Name & Last Name ──
+    const firstName = document.getElementById('first_name').value.trim();
+    const lastName  = document.getElementById('last_name').value.trim();
+
+    if (!/^[a-zA-Z\s]+$/.test(firstName)) {
+        alert('⚠️ First Name must contain letters only. No numbers or special characters.');
+        e.preventDefault(); return;
+    }
+    if (!/^[a-zA-Z\s]+$/.test(lastName)) {
+        alert('⚠️ Last Name must contain letters only. No numbers or special characters.');
+        e.preventDefault(); return;
+    }
+
+    // ── Email: no spaces ──
+    const email = document.getElementById('email').value;
+    if (/\s/.test(email)) {
+        alert('⚠️ Email must not contain spaces.');
+        e.preventDefault(); return;
+    }
+
+    // ── Address: no special characters ──
+    const address = document.getElementById('address').value.trim();
+    if (/[^a-zA-Z0-9\s,.\-#\/]/.test(address)) {
+        alert('⚠️ Address must not contain special characters.');
+        e.preventDefault(); return;
+    }
+
+    // ── Contact ──
+    if(contactInput.value.length !== 11){ 
+        alert('Contact must be exactly 11 digits'); 
+        contactInput.classList.add('error'); 
+        e.preventDefault(); 
+        return; 
+    }
+    
+    // ── Date Hired ──
+    if(dateInput.value !== todayDate){ 
+        alert('❌ Date Hired must be today!'); 
+        dateInput.classList.add('error'); 
+        e.preventDefault(); 
+        return; 
+    }
+    
+    // ── Face Data ──
+    const faceDataField = document.getElementById('face_data');
+    if (!faceDataField.value || faceDataField.value.length < 100) {
+        e.preventDefault();
+        alert('❌ Please capture employee face before submitting!');
+        return false;
+    }
+    
+    console.log('✅ Form validation passed, face data length:', faceDataField.value.length);
+});
+
+// ========================================
+// ✅ FACE REGISTRATION WITH FACE-API.JS
+// ========================================
+let stream = null;
+let faceDescriptor = null;
+let modelsLoaded = false;
+
+const video = document.getElementById('videoElement');
+const canvas = document.getElementById('canvas');
+const ctx = canvas?.getContext('2d');
+
+async function loadModels() {
+    try {
+        document.getElementById('faceStatus').textContent = '⏳ Loading face recognition models...';
+        document.getElementById('modelLoadingStatus').textContent = '⏳ Loading face recognition models, please wait...';
+
+        const MODEL_URL = '/static/models';
+
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+
+        modelsLoaded = true;
+
+        document.getElementById('faceStatus').textContent = '✅ Models loaded! Click Start Camera.';
+        document.getElementById('modelLoadingStatus').textContent = '✅ Face recognition ready!';
+        document.getElementById('modelLoadingStatus').style.background = 'rgba(16, 185, 129, 0.4)';
+        document.getElementById('startCameraBtn').disabled = false;
+
+        console.log('✅ Face-api models loaded successfully');
+
+    } catch (error) {
+        console.error('❌ Error loading models:', error);
+        document.getElementById('faceStatus').textContent = '❌ Failed to load models.';
+        document.getElementById('modelLoadingStatus').textContent = '❌ Model loading failed!';
+        document.getElementById('modelLoadingStatus').style.background = 'rgba(239, 68, 68, 0.4)';
+    }
+}
+
+document.getElementById('startCameraBtn')?.addEventListener('click', async function() {
+    if (!modelsLoaded) {
+        alert('⏳ Models are still loading. Please wait.');
+        return;
+    }
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: 640, height: 480, facingMode: 'user' } 
+        });
+        video.srcObject = stream;
+
+        this.disabled = true;
+        document.getElementById('captureFaceBtn').disabled = false;
+        document.getElementById('stopCameraBtn').disabled = false;
+        document.getElementById('faceStatus').textContent = '✅ Camera started - Position face in center';
+
+    } catch (error) {
+        alert('❌ Failed to start camera: ' + error.message);
+    }
+});
+
+document.getElementById('captureFaceBtn')?.addEventListener('click', async function() {
+    if (!modelsLoaded) {
+        alert('❌ Models not loaded yet!');
+        return;
+    }
+
+    document.getElementById('faceStatus').textContent = '🔍 Detecting face, please wait...';
+    this.disabled = true;
+
+    try {
+        const detection = await faceapi
+            .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+
+        if (!detection) {
+            document.getElementById('faceStatus').textContent = '❌ No face detected! Make sure you are facing the camera with good lighting.';
+            this.disabled = false;
+            return;
+        }
+
+        faceDescriptor = Array.from(detection.descriptor);
+        const faceDataJSON = JSON.stringify(faceDescriptor);
+        document.getElementById('face_data').value = faceDataJSON;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        const faceImage = canvas.toDataURL('image/jpeg', 0.8);
+        document.getElementById('capturedImage').src = faceImage;
+
+        document.getElementById('videoElement').style.display = 'none';
+        document.getElementById('faceCaptured').style.display = 'block';
+        document.getElementById('captureFaceBtn').style.display = 'none';
+        document.getElementById('retakeBtn').style.display = 'inline-block';
+        document.getElementById('faceStatus').textContent = '✅ Face saved! (' + faceDescriptor.length + ' values) Ready to submit.';
+
+        console.log('✅ Face descriptor captured:', faceDescriptor.length, 'values');
+        console.log('✅ Face data JSON length:', faceDataJSON.length);
+
+    } catch (error) {
+        console.error('❌ Error capturing face:', error);
+        document.getElementById('faceStatus').textContent = '❌ Error: ' + error.message;
+        this.disabled = false;
+    }
+});
+
+document.getElementById('retakeBtn')?.addEventListener('click', function() {
+    document.getElementById('videoElement').style.display = 'block';
+    document.getElementById('faceCaptured').style.display = 'none';
+    document.getElementById('captureFaceBtn').style.display = 'inline-block';
+    document.getElementById('captureFaceBtn').disabled = false;
+    this.style.display = 'none';
+    document.getElementById('face_data').value = '';
+    faceDescriptor = null;
+    document.getElementById('faceStatus').textContent = '⚠️ Retake - Position face in center';
+});
+
+document.getElementById('stopCameraBtn')?.addEventListener('click', function() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+        document.getElementById('startCameraBtn').disabled = false;
+        document.getElementById('captureFaceBtn').disabled = true;
+        this.disabled = true;
+        document.getElementById('faceStatus').textContent = '📷 Camera stopped.';
+    }
+});
+
+// ========================================
+// INITIALIZE PAGE
+// ========================================
+window.addEventListener('DOMContentLoaded', async function() {
+    await loadCareerLevels();
+    await loadJobGrades();
+    document.getElementById('job_grade').disabled = true;
+
+    const waitForFaceApi = setInterval(async () => {
+        if (typeof faceapi !== 'undefined') {
+            clearInterval(waitForFaceApi);
+            await loadModels();
+        }
+    }, 100);
+});
+</script>
+
+</body>
+</html>

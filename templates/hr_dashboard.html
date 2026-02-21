@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HR Dashboard</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .header {
+            background: #8b5cf6;
+            color: #fff;
+            padding: 16px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 { font-size: 24px; margin: 0; }
+
+        .logout-btn {
+            background: #dc2626;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .tabs {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+
+        .tab-btn.active { background: #8b5cf6; color: white; }
+        .tab-btn:hover:not(.active) { background: #f3f4f6; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .btn {
+            padding: 10px 18px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: 0.3s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary { background: #10b981; color: #fff; }
+        .btn-primary:hover { background: #059669; }
+        .btn-edit { background: #3b82f6; color: #fff; }
+        .btn-edit:hover { background: #2563eb; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td { padding: 14px 16px; text-align: left; }
+
+        th {
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        tr:nth-child(even) { background-color: #f9fafb; }
+        tr:hover { background-color: #f0f9ff; }
+
+        .payroll-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 18px;
+            border-left: 6px solid #8b5cf6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .payroll-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .payroll-header h3 { margin: 0; font-size: 18px; color: #1f2937; }
+        .payroll-header .employee-info { color: #6b7280; font-size: 13px; margin-top: 5px; }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-approved { background: #d1fae5; color: #065f46; }
+        .badge-paid { background: #dbeafe; color: #1e40af; }
+
+        .payroll-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .payroll-item { font-size: 14px; }
+        .payroll-item strong { color: #8b5cf6; display: block; margin-bottom: 5px; }
+
+        .summary-box { background: #f5f3ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9d5ff;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 18px;
+            color: #8b5cf6;
+            padding-top: 12px;
+            margin-top: 8px;
+            border-top: 2px solid #8b5cf6;
+        }
+
+        .actions { margin-top: 15px; display: flex; gap: 10px; }
+
+        .actions button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-paid { background: #3b82f6; color: white; }
+        .btn-payslip { background: #10b981; color: white; }
+        .btn-view { background: #6366f1; color: white; }
+        .btn-reply { background: #8b5cf6; color: white; }
+
+        /* CONCERN CARDS */
+        .concern-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 18px;
+            border-left: 6px solid #8b5cf6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .concern-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+            background: #fff;
+            border-radius: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 { margin: 0 0 20px 0; color: #1f2937; }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6b7280;
+            float: right;
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #payslipContent, #payslipContent * { visibility: visible; }
+            #payslipContent { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>👨‍💼 HR Dashboard</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('employees', event)">👥 Employees</button>
+        <button class="tab-btn" onclick="switchTab('payroll', event)">💰 Approved Payrolls</button>
+        <button class="tab-btn" onclick="switchTab('concerns', event)">💬 Payroll Concerns</button>
+    </div>
+
+    <!-- EMPLOYEES TAB -->
+    <div id="employeesTab" class="tab-content active">
+        <a href="/hr/add" class="btn btn-primary">➕ Add Employee</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Employee ID</th>
+                    <th>Full Name</th>
+                    <th>Position</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="employeesTableBody">
+                <tr><td colspan="7" style="text-align:center;">Loading employees...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PAYROLL TAB -->
+    <div id="payrollTab" class="tab-content">
+        <div id="payrollContainer">Loading approved payrolls...</div>
+    </div>
+
+    <!-- ✅ PAYROLL CONCERNS TAB -->
+    <div id="concernsTab" class="tab-content">
+        <div style="font-size: 20px; margin-bottom: 15px; font-weight: 600;">💬 Employee & Supervisor Concerns</div>
+        <div id="concernsContainer">Loading...</div>
+    </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <h3>📄 Payroll Details</h3>
+        <div id="detailsContent"></div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn btn-edit" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- PAYSLIP MODAL -->
+<div id="payslipModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closePayslipModal()">&times;</button>
+        <div id="payslipContent"></div>
+        <div style="margin-top: 20px; text-align: center;">
+            <button class="btn btn-primary" onclick="printPayslip()">🖨️ Print Payslip</button>
+            <button class="btn btn-edit" onclick="closePayslipModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ CONCERN CONVERSATION MODAL -->
+<div id="concernModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <h3>💬 Payroll Concern</h3>
+        <div id="messageThread" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px; background: #f9fafb; padding: 15px; border-radius: 8px;"></div>
+        <textarea id="hrReply" rows="3" placeholder="Type your reply..." style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical; margin-bottom: 10px;"></textarea>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="sendHRReply()" style="flex: 1; padding: 10px; background: #8b5cf6; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">📤 Send Reply</button>
+            <button onclick="closeConcernModal()" style="flex: 1; padding: 10px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">✖️ Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentConcernPayrollId = null;
+
+function switchTab(tab, event) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    if (tab === 'employees') {
+        document.getElementById('employeesTab').classList.add('active');
+        loadEmployees();
+    } else if (tab === 'payroll') {
+        document.getElementById('payrollTab').classList.add('active');
+        loadApprovedPayrolls();
+    } else if (tab === 'concerns') {
+        document.getElementById('concernsTab').classList.add('active');
+        loadConcerns();
+    }
+}
+
+async function loadEmployees() {
+    const tbody = document.getElementById('employeesTableBody');
+    try {
+        const response = await fetch('/api/employees');
+        if (!response.ok) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">❌ Failed to load employees</td></tr>';
+            return;
+        }
+        const employees = await response.json();
+        if (employees.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No employees found</td></tr>';
+            return;
+        }
+        tbody.innerHTML = '';
+        employees.forEach(emp => {
+            // ✅ ADD STATUS BADGE
+            let statusBadge = '';
+            const status = emp.Status || 'Active';
+            
+            if (status === 'Active') {
+                statusBadge = '<span style="background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">✅ Active</span>';
+            } else if (status === 'Inactive') {
+                statusBadge = '<span style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">❌ Inactive</span>';
+            } else if (status === 'On Leave') {
+                statusBadge = '<span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">📅 On Leave</span>';
+            } else if (status === 'Terminated') {
+                statusBadge = '<span style="background: #f3f4f6; color: #6b7280; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">⛔ Terminated</span>';
+            }
+            
+            tbody.innerHTML += `
+                <tr style="${status === 'Inactive' || status === 'Terminated' ? 'opacity: 0.6; background: #f9fafb;' : ''}">
+                    <td>${emp.ID || 'N/A'}</td>
+                    <td>${emp.EmployeeID || 'N/A'}</td>
+                    <td>${emp.FirstName || ''} ${emp.LastName || ''}</td>
+                    <td>${emp.Position || 'N/A'}</td>
+                    <td>${emp.Department || 'N/A'}</td>
+                    <td>${statusBadge}</td>
+                    <td><a href="/hr/edit/${emp.EmployeeID}" class="btn btn-edit">Edit</a></td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">❌ Network error: ' + error.message + '</td></tr>';
+    }
+}
+
+async function loadApprovedPayrolls() {
+    const container = document.getElementById('payrollContainer');
+    container.innerHTML = '<div style="text-align:center; padding:40px;">Loading approved payrolls...</div>';
+
+    try {
+        const response = await fetch('/api/payroll/approved');
+        if (!response.ok) {
+            container.innerHTML = '<div class="empty">❌ Failed to load payrolls</div>';
+            return;
+        }
+        const payrolls = await response.json();
+        container.innerHTML = '';
+
+        if (payrolls.length === 0) {
+            container.innerHTML = '<div class="empty">✅ No approved payrolls yet</div>';
+            return;
+        }
+
+        payrolls.forEach(p => {
+            const statusBadge = p.payment_status === 'Paid'
+                ? '<span class="badge badge-paid">💵 PAID</span>'
+                : '<span class="badge badge-approved">✅ APPROVED</span>';
+
+            container.innerHTML += `
+                <div class="payroll-card">
+                    <div class="payroll-header">
+                        <div>
+                            <h3>${p.first_name} ${p.last_name}</h3>
+                            <div class="employee-info">${p.employee_id} • ${p.position} • ${p.department}</div>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <div class="payroll-grid">
+                        <div class="payroll-item"><strong>Period</strong>${p.period_from} to ${p.period_to}</div>
+                        <div class="payroll-item"><strong>Days Worked</strong>${p.days_worked} / ${p.total_working_days} days</div>
+                        <div class="payroll-item"><strong>Gross Pay</strong>₱${parseFloat(p.gross_pay).toLocaleString('en-PH',{minimumFractionDigits:2})}</div>
+                        <div class="payroll-item"><strong>Total Deductions</strong>₱${parseFloat(p.total_deductions).toLocaleString('en-PH',{minimumFractionDigits:2})}</div>
+                    </div>
+                    <div class="summary-box">
+                        <div class="summary-row">
+                            <span>NET PAY:</span>
+                            <strong>₱${parseFloat(p.net_pay).toLocaleString('en-PH',{minimumFractionDigits:2})}</strong>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-view" onclick="viewDetails(${p.id})">👁️ View Full Details</button>
+                        <button class="btn-payslip" onclick="generatePayslip(${p.id})">📄 Generate Payslip</button>
+                        ${p.payment_status !== 'Paid' ? `<button class="btn-paid" onclick="markAsPaid(${p.id})">💵 Mark as Paid</button>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+    } catch (error) {
+        container.innerHTML = '<div class="empty">❌ Network error</div>';
+    }
+}
+
+// ✅ PAYROLL CONCERNS FUNCTIONS
+async function loadConcerns() {
+    const container = document.getElementById('concernsContainer');
+    container.innerHTML = '<div style="text-align:center; padding:40px;">Loading concerns...</div>';
+
+    try {
+        const response = await fetch('/api/payroll/concerns');
+        const data = await response.json();
+
+        if (!data.success) {
+            container.innerHTML = `<div class="empty">❌ ${data.message || 'Failed to load concerns'}</div>`;
+            return;
+        }
+
+        if (!data.concerns || data.concerns.length === 0) {
+            container.innerHTML = '<div class="empty">✅ No payroll concerns</div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        data.concerns.forEach(concern => {
+            container.innerHTML += `
+                <div class="concern-card">
+                    <div class="concern-card-header">
+                        <div>
+                            <strong style="font-size: 18px;">${concern.employee_name}</strong>
+                            <div style="color: #6b7280; font-size: 13px; margin-top: 4px;">${concern.employee_id}</div>
+                        </div>
+                        <span class="badge" style="background: #ede9fe; color: #6d28d9;">
+                            ${concern.message_count} message${concern.message_count > 1 ? 's' : ''}
+                        </span>
+                    </div>
+                    <div style="margin: 15px 0; font-size: 14px;">
+                        <strong>Period:</strong> ${concern.period_from} to ${concern.period_to}<br>
+                        <strong>Net Pay:</strong> ₱${parseFloat(concern.net_pay).toLocaleString('en-PH',{minimumFractionDigits:2})}
+                    </div>
+                    <button class="btn-reply" style="width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;" onclick="openConcernModal(${concern.payroll_id})">
+                        💬 View Conversation & Reply
+                    </button>
+                </div>
+            `;
+        });
+    } catch (error) {
+        container.innerHTML = `<div class="empty">❌ Network error: ${error.message}</div>`;
+    }
+}
+
+async function openConcernModal(payrollId) {
+    currentConcernPayrollId = payrollId;
+    await loadMessages(payrollId);
+    document.getElementById('concernModal').classList.add('active');
+}
+
+function closeConcernModal() {
+    document.getElementById('concernModal').classList.remove('active');
+    document.getElementById('hrReply').value = '';
+    currentConcernPayrollId = null;
+}
+
+async function loadMessages(payrollId) {
+    const container = document.getElementById('messageThread');
+    container.innerHTML = '<div style="text-align:center; padding:20px;">Loading...</div>';
+
+    try {
+        const response = await fetch(`/api/payroll/message/${payrollId}`);
+        const data = await response.json();
+
+        if (!data.success || !data.messages || data.messages.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:40px; color:#6b7280;">No messages yet</div>';
+            return;
+        }
+
+        let html = '';
+        data.messages.forEach(msg => {
+            const isHR = msg.sender_role === 'HR';
+            const bgColor = isHR ? '#ede9fe' : '#dbeafe';
+            const textColor = isHR ? '#6d28d9' : '#1e40af';
+            const alignment = isHR ? 'right' : 'left';
+            const icon = isHR ? '👨‍💼' : (msg.sender_role === 'Manager' ? '👔' : (msg.sender_role === 'Supervisor' ? '👨‍💼' : '👤'));
+
+            html += `
+                <div style="margin-bottom: 15px; text-align: ${alignment};">
+                    <div style="display: inline-block; max-width: 80%; background: ${bgColor}; padding: 12px 15px; border-radius: 12px; text-align: left;">
+                        <div style="font-weight: bold; color: ${textColor}; margin-bottom: 5px; font-size: 13px;">
+                            ${icon} ${msg.sender_name} (${msg.sender_role})
+                        </div>
+                        <div style="color: #1f2937; line-height: 1.5; white-space: pre-wrap;">${msg.message}</div>
+                        <div style="font-size: 11px; color: #6b7280; margin-top: 5px;">
+                            ${new Date(msg.created_at).toLocaleString('en-PH')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
+    } catch (error) {
+        container.innerHTML = '<div style="text-align:center; padding:20px; color:#dc2626;">Failed to load messages</div>';
+    }
+}
+
+async function sendHRReply() {
+    const message = document.getElementById('hrReply').value.trim();
+
+    if (!message) {
+        alert('❌ Please type a reply');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/payroll/message/hr-reply', {  // ✅ FIXED
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                payroll_id: currentConcernPayrollId,
+                message: message
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById('hrReply').value = '';
+            await loadMessages(currentConcernPayrollId);
+            loadConcerns();
+            alert('✅ Reply sent!');
+        } else {
+            alert('❌ Failed to send reply: ' + (data.message || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Network error');
+    }
+}
+
+async function viewDetails(payrollId) {
+    try {
+        const response = await fetch('/api/payroll/approved');
+        const payrolls = await response.json();
+        const p = payrolls.find(payroll => payroll.id === payrollId);
+        if (!p) { alert('Payroll not found'); return; }
+
+        const content = `
+            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0;">👤 Employee Information</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                    <div><strong>Name:</strong> ${p.first_name} ${p.last_name}</div>
+                    <div><strong>Employee ID:</strong> ${p.employee_id}</div>
+                    <div><strong>Position:</strong> ${p.position}</div>
+                    <div><strong>Department:</strong> ${p.department}</div>
+                </div>
+            </div>
+            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0;">💵 Earnings</h4>
+                <table style="width: 100%; font-size: 14px;">
+                    <tr><td>Basic Salary:</td><td style="text-align:right;"><strong>₱${parseFloat(p.basic_salary).toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></td></tr>
+                    <tr><td>Pro-rated Salary:</td><td style="text-align:right;"><strong>₱${parseFloat(p.prorated_salary).toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></td></tr>
+                    <tr><td>Transportation:</td><td style="text-align:right;">₱${parseFloat(p.transportation).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>Meal Allowance:</td><td style="text-align:right;">₱${parseFloat(p.meal_allowance).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>Communication:</td><td style="text-align:right;">₱${parseFloat(p.communication).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>Other Allowance:</td><td style="text-align:right;">₱${parseFloat(p.other_allowance).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                </table>
+            </div>
+            <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0;">➖ Deductions</h4>
+                <table style="width: 100%; font-size: 14px;">
+                    <tr><td>SSS:</td><td style="text-align:right;">₱${parseFloat(p.sss).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>PhilHealth:</td><td style="text-align:right;">₱${parseFloat(p.philhealth).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>Pag-IBIG:</td><td style="text-align:right;">₱${parseFloat(p.pagibig).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>Tax:</td><td style="text-align:right;">₱${parseFloat(p.tax).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>Cash Advance:</td><td style="text-align:right;">₱${parseFloat(p.cash_advance).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    <tr><td>Other Deductions:</td><td style="text-align:right;">₱${parseFloat(p.other_deductions).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                </table>
+            </div>
+            <div style="background: #ede9fe; padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0;">📊 Summary</h4>
+                <table style="width: 100%; font-size: 15px;">
+                    <tr><td><strong>Gross Pay:</strong></td><td style="text-align:right;"><strong>₱${parseFloat(p.gross_pay).toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></td></tr>
+                    <tr><td><strong>Total Deductions:</strong></td><td style="text-align:right;"><strong>₱${parseFloat(p.total_deductions).toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></td></tr>
+                    <tr style="border-top: 2px solid #8b5cf6;"><td style="padding-top:10px;"><strong style="font-size:17px; color:#8b5cf6;">NET PAY:</strong></td><td style="text-align:right; padding-top:10px;"><strong style="font-size:17px; color:#8b5cf6;">₱${parseFloat(p.net_pay).toLocaleString('en-PH',{minimumFractionDigits:2})}</strong></td></tr>
+                </table>
+            </div>
+        `;
+
+        document.getElementById('detailsContent').innerHTML = content;
+        document.getElementById('detailsModal').classList.add('active');
+    } catch (error) {
+        alert('❌ Failed to load details');
+    }
+}
+
+function closeModal() {
+    document.getElementById('detailsModal').classList.remove('active');
+}
+
+async function generatePayslip(payrollId) {
+    try {
+        const response = await fetch('/api/payroll/approved');
+        const payrolls = await response.json();
+        const p = payrolls.find(payroll => payroll.id === payrollId);
+        if (!p) { alert('Payroll not found'); return; }
+
+        const payslip = `
+            <div style="max-width: 800px; margin: 0 auto; padding: 30px; border: 2px solid #8b5cf6;">
+                <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #8b5cf6; padding-bottom: 20px;">
+                    <h1 style="margin: 0; color: #8b5cf6;">PAYSLIP</h1>
+                    <p style="margin: 5px 0; color: #6b7280;">Payroll & Leave Management System</p>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                    <div>
+                        <h3 style="margin: 0 0 10px 0; color: #1f2937;">Employee Information</h3>
+                        <p style="margin: 5px 0;"><strong>Name:</strong> ${p.first_name} ${p.last_name}</p>
+                        <p style="margin: 5px 0;"><strong>Employee ID:</strong> ${p.employee_id}</p>
+                        <p style="margin: 5px 0;"><strong>Position:</strong> ${p.position}</p>
+                        <p style="margin: 5px 0;"><strong>Department:</strong> ${p.department}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0 0 10px 0; color: #1f2937;">Pay Period</h3>
+                        <p style="margin: 5px 0;"><strong>From:</strong> ${p.period_from}</p>
+                        <p style="margin: 5px 0;"><strong>To:</strong> ${p.period_to}</p>
+                        <p style="margin: 5px 0;"><strong>Days Worked:</strong> ${p.days_worked} / ${p.total_working_days}</p>
+                    </div>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background: #8b5cf6; color: white;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #8b5cf6;">EARNINGS</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #8b5cf6;">AMOUNT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Basic Salary</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.basic_salary).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Pro-rated Salary</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.prorated_salary).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Transportation</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.transportation).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Meal Allowance</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.meal_allowance).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Communication</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.communication).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Other Allowance</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.other_allowance).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr style="background:#f0fdf4;font-weight:bold;"><td style="padding:8px;border:1px solid #ddd;">GROSS PAY</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.gross_pay).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    </tbody>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                    <thead>
+                        <tr style="background: #dc2626; color: white;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #dc2626;">DEDUCTIONS</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #dc2626;">AMOUNT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">SSS</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.sss).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">PhilHealth</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.philhealth).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Pag-IBIG</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.pagibig).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Tax</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.tax).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Cash Advance</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.cash_advance).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr><td style="padding:8px;border:1px solid #ddd;">Other Deductions</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.other_deductions).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                        <tr style="background:#fee2e2;font-weight:bold;"><td style="padding:8px;border:1px solid #ddd;">TOTAL DEDUCTIONS</td><td style="padding:8px;text-align:right;border:1px solid #ddd;">₱${parseFloat(p.total_deductions).toLocaleString('en-PH',{minimumFractionDigits:2})}</td></tr>
+                    </tbody>
+                </table>
+                <div style="background: #ede9fe; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px;">
+                    <h2 style="margin: 0; color: #8b5cf6;">NET PAY</h2>
+                    <h1 style="margin: 10px 0; color: #8b5cf6; font-size: 32px;">₱${parseFloat(p.net_pay).toLocaleString('en-PH',{minimumFractionDigits:2})}</h1>
+                </div>
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb; font-size: 12px; color: #6b7280; text-align: center;">
+                    <p>This is a computer-generated payslip. No signature required.</p>
+                    <p>Generated on: ${new Date().toLocaleDateString('en-PH')}</p>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('payslipContent').innerHTML = payslip;
+        document.getElementById('payslipModal').classList.add('active');
+    } catch (error) {
+        alert('❌ Failed to generate payslip');
+    }
+}
+
+function closePayslipModal() {
+    document.getElementById('payslipModal').classList.remove('active');
+}
+
+function printPayslip() {
+    window.print();
+}
+
+async function markAsPaid(payrollId) {
+    if (!confirm('Mark this payroll as PAID?')) return;
+    try {
+        const response = await fetch('/api/payroll/mark-paid', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payroll_id: payrollId })
+        });
+        if (response.ok) {
+            alert('✅ Marked as Paid!');
+            loadApprovedPayrolls();
+        } else {
+            alert('❌ Failed to update status');
+        }
+    } catch (error) {
+        alert('❌ Network error');
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout';
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadEmployees();
+});
+</script>
+
+</body>
+</html>

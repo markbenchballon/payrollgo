@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manager Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f4f6f9;
+    color: #1f2937;
+}
+
+.header {
+    background: #0f766e;
+    color: #fff;
+    padding: 16px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 22px;
+}
+
+.logout-btn {
+    background: #dc2626;
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.tabs {
+    background: white;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: #0f766e;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.section-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.leave-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 15px;
+    border-left: 6px solid #0f766e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.leave-card p {
+    margin: 6px 0;
+    font-size: 14px;
+}
+
+.leave-card strong {
+    font-size: 16px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge-pending {
+    background: #fde68a;
+    color: #92400e;
+}
+
+.actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+}
+
+.actions button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-approve {
+    background: #16a34a;
+    color: white;
+    flex: 1;
+}
+
+.btn-reject {
+    background: #dc2626;
+    color: white;
+    flex: 1;
+}
+
+.btn-view {
+    background: #0f766e;
+    color: white;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px;
+    color: #6b7280;
+    background: #fff;
+    border-radius: 10px;
+}
+
+/* PAYROLL CARDS */
+.payroll-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 6px solid #0f766e;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.payroll-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.payroll-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.payroll-item {
+    font-size: 13px;
+}
+
+.payroll-item strong {
+    color: #0f766e;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.summary-box {
+    background: #f0fdfa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #ccfbf1;
+}
+
+.summary-row:last-child {
+    border-bottom: none;
+    font-weight: bold;
+    font-size: 18px;
+    color: #0f766e;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 2px solid #0f766e;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: #1f2937;
+}
+
+.modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.footer {
+    text-align: center;
+    font-size: 12px;
+    padding: 20px;
+    color: #6b7280;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>👔 Manager Dashboard</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('payroll', event)">💰 Supervisor Payrolls</button>
+        <button class="tab-btn" onclick="switchTab('leave', event)">📅 Leave Requests</button>
+    </div>
+
+    <!-- PAYROLL TAB -->
+    <div id="payrollTab" class="tab-content active">
+        <div class="section-title">💰 Pending Supervisor Payroll Submissions</div>
+        <div id="payrollContainer">Loading...</div>
+    </div>
+
+    <!-- LEAVE TAB -->
+    <div id="leaveTab" class="tab-content">
+        <div class="section-title">📩 Leave Requests for Approval</div>
+        <div id="leaveContainer"></div>
+    </div>
+</div>
+
+<!-- NOTES MODAL -->
+<div id="notesModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Add Notes</h3>
+        <textarea id="managerNotes" rows="5" placeholder="Enter your notes here (optional for approval, required for rejection)"></textarea>
+        <div class="modal-actions">
+            <button style="background: #16a34a; color: white;" onclick="submitDecision()">Submit</button>
+            <button style="background: #6b7280; color: white;" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div id="detailsModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">📄 Payroll Details</h3>
+            <button onclick="closeDetailsModal()" style="background: transparent; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">&times;</button>
+        </div>
+        <div id="detailsContent"></div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button onclick="closeDetailsModal()" style="background: #0f766e; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Close</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    © 2026 Payroll & Leave Management System
+</div>
+
+<script>
+let currentPayrollId = null;
+let currentDecision = null;
+
+function switchTab(tab, event) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    if (tab === 'payroll') {
+        document.getElementById('payrollTab').classList.add('active');
+        loadPayrollRequests();
+    } else if (tab === 'leave') {
+        document.getElementById('leaveTab').classList.add('active');
+        loadLeaveRequests();
+    }
+}
+
+async function loadPayrollRequests() {
+    const container = document.getElementById('payrollContainer');
+    container.innerHTML = '<div style="text-align:center; padding:40px;">Loading supervisor payroll submissions...</div>';
+
+    try {
+        const response = await fetch('/api/payroll/pending/supervisor');
+
+        if (!response.ok) {
+            container.innerHTML = '<div class="empty">❌ Failed to load payrolls</div>';
+            return;
+        }
+
+        const payrolls = await response.json();
+        container.innerHTML = '';
+
+        if (payrolls.length === 0) {
+            container.innerHTML = `<div class="empty">✅ No pending supervisor payroll submissions</div>`;
+            return;
+        }
+
+        payrolls.forEach(p => {
+            container.innerHTML += `
+                <div class="payroll-card">
+                    <div class="payroll-card-header">
+                        <div>
+                            <strong style="font-size: 18px;">${p.first_name} ${p.last_name}</strong>
+                            <div style="color: #6b7280; font-size: 13px; margin-top: 4px;">
+                                ${p.employee_id} • ${p.position} • ${p.department}
+                            </div>
+                        </div>
+                        <span class="badge badge-pending">${p.status}</span>
+                    </div>
+
+                    <div class="payroll-grid">
+                        <div class="payroll-item">
+                            <strong>Period</strong>
+                            ${p.period_from} to ${p.period_to}
+                        </div>
+                        <div class="payroll-item">
+                            <strong>Basic Salary</strong>
+                            ₱${parseFloat(p.basic_salary).toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                        </div>
+                        <div class="payroll-item">
+                            <strong>Days Worked</strong>
+                            ${p.days_worked} / ${p.total_working_days} days
+                        </div>
+                        <div class="payroll-item">
+                            <strong>Pro-rated Salary</strong>
+                            ₱${parseFloat(p.prorated_salary).toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                        </div>
+                    </div>
+
+                    <div class="summary-box">
+                        <div class="summary-row">
+                            <span>Gross Pay:</span>
+                            <strong>₱${parseFloat(p.gross_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Total Deductions:</span>
+                            <strong>₱${parseFloat(p.total_deductions).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>NET PAY:</span>
+                            <strong>₱${parseFloat(p.net_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn-approve" onclick="openNotesModal(${p.id}, 'Approved')">
+                            ✅ Approve
+                        </button>
+                        <button class="btn-reject" onclick="openNotesModal(${p.id}, 'Rejected')">
+                            ❌ Reject
+                        </button>
+                        <button class="btn-view" onclick="viewPayrollDetails(${p.id})">
+                            👁️ View Details
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<div class="empty">❌ Network error</div>';
+    }
+}
+
+function openNotesModal(payrollId, decision) {
+    currentPayrollId = payrollId;
+    currentDecision = decision;
+    document.getElementById('modalTitle').textContent =
+        decision === 'Approved' ? '✅ Approve Payroll' : '❌ Reject Payroll';
+    document.getElementById('managerNotes').value = '';
+    document.getElementById('notesModal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('notesModal').classList.remove('active');
+    currentPayrollId = null;
+    currentDecision = null;
+}
+
+// ✅ FIXED: submitDecision — dati wala itong implementation
+async function submitDecision() {
+    const notes = document.getElementById('managerNotes').value.trim();
+
+    if (currentDecision === 'Rejected' && !notes) {
+        alert('⚠️ Required: Please enter a reason for rejection.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/payroll/decision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                payroll_id: currentPayrollId,
+                status: currentDecision,
+                manager_notes: notes
+            })
+        });
+
+        if (!response.ok) {
+            alert('❌ Failed to submit decision. Please try again.');
+            return;
+        }
+
+        alert(`✅ Payroll successfully ${currentDecision}!`);
+        closeModal();
+        loadPayrollRequests();
+
+    } catch (error) {
+        console.error(error);
+        alert('❌ Network error. Please try again.');
+    }
+}
+
+// ✅ FIXED: Isang beses lang defined, complete ang content
+async function viewPayrollDetails(payrollId) {
+    try {
+        const response = await fetch('/api/payroll/pending/supervisor');
+        const payrolls = await response.json();
+        const payroll = payrolls.find(p => p.id === payrollId);
+
+        if (!payroll) {
+            alert('Payroll not found');
+            return;
+        }
+
+        const content = `
+            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #1f2937;">👤 Employee Information</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                    <div><strong>Name:</strong> ${payroll.first_name} ${payroll.last_name}</div>
+                    <div><strong>Employee ID:</strong> ${payroll.employee_id}</div>
+                    <div><strong>Position:</strong> ${payroll.position}</div>
+                    <div><strong>Department:</strong> ${payroll.department}</div>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
+                    <h4 style="margin: 0 0 10px 0; color: #1f2937;">📅 Pay Period Details</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+                        <div><strong>Pay Period:</strong> ${payroll.period_from} to ${payroll.period_to}</div>
+                        <div><strong>Date Submitted:</strong> ${payroll.submitted_date || 'N/A'}</div>
+                        <div><strong>Days Worked:</strong> ${payroll.days_worked} days</div>
+                        <div><strong>Total Working Days:</strong> ${payroll.total_working_days} days</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #ecfdf5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #065f46;">💵 Earnings</h4>
+                <table style="width: 100%; font-size: 14px;">
+                    <tr><td>Basic Salary:</td><td style="text-align: right;"><strong>₱${parseFloat(payroll.basic_salary).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong></td></tr>
+                    <tr><td>Pro-rated Salary:</td><td style="text-align: right;"><strong>₱${parseFloat(payroll.prorated_salary).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong></td></tr>
+                    <tr><td>Transportation:</td><td style="text-align: right;">₱${parseFloat(payroll.transportation).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>Meal Allowance:</td><td style="text-align: right;">₱${parseFloat(payroll.meal_allowance).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>Communication:</td><td style="text-align: right;">₱${parseFloat(payroll.communication).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>Other Allowance:</td><td style="text-align: right;">₱${parseFloat(payroll.other_allowance).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                </table>
+            </div>
+
+            <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin: 0 0 10px 0; color: #991b1b;">➖ Deductions</h4>
+                <table style="width: 100%; font-size: 14px;">
+                    <tr><td>SSS:</td><td style="text-align: right;">₱${parseFloat(payroll.sss).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>PhilHealth:</td><td style="text-align: right;">₱${parseFloat(payroll.philhealth).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>Pag-IBIG:</td><td style="text-align: right;">₱${parseFloat(payroll.pagibig).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>Tax:</td><td style="text-align: right;">₱${parseFloat(payroll.tax).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>Cash Advance:</td><td style="text-align: right;">₱${parseFloat(payroll.cash_advance).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                    <tr><td>Other Deductions:</td><td style="text-align: right;">₱${parseFloat(payroll.other_deductions).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td></tr>
+                </table>
+            </div>
+
+            <div style="background: #f0fdfa; padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #0f766e;">📊 Summary</h4>
+                <table style="width: 100%; font-size: 15px;">
+                    <tr><td><strong>Gross Pay:</strong></td><td style="text-align: right;"><strong>₱${parseFloat(payroll.gross_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong></td></tr>
+                    <tr><td><strong>Total Deductions:</strong></td><td style="text-align: right;"><strong>₱${parseFloat(payroll.total_deductions).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong></td></tr>
+                    <tr style="border-top: 2px solid #0f766e;">
+                        <td style="padding-top: 10px;"><strong style="font-size: 17px; color: #0f766e;">NET PAY:</strong></td>
+                        <td style="text-align: right; padding-top: 10px;"><strong style="font-size: 17px; color: #0f766e;">₱${parseFloat(payroll.net_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</strong></td>
+                    </tr>
+                </table>
+            </div>
+        `;
+
+        document.getElementById('detailsContent').innerHTML = content;
+        document.getElementById('detailsModal').classList.add('active');
+
+    } catch (error) {
+        console.error(error);
+        alert('❌ Failed to load payroll details');
+    }
+}
+
+function closeDetailsModal() {
+    document.getElementById('detailsModal').classList.remove('active');
+}
+
+async function loadLeaveRequests() {
+    const container = document.getElementById('leaveContainer');
+    container.innerHTML = 'Loading leave requests...';
+
+    try {
+        const response = await fetch('/api/leave/pending/Manager');
+
+        if (!response.ok) {
+            container.innerHTML = '<div class="empty">❌ Failed to load leave requests</div>';
+            return;
+        }
+
+        const leaves = await response.json();
+        container.innerHTML = '';
+
+        if (leaves.length === 0) {
+            container.innerHTML = `<div class="empty">✅ No pending leave requests</div>`;
+            return;
+        }
+
+        leaves.forEach(leave => {
+            container.innerHTML += `
+                <div class="leave-card">
+                    <strong>Employee ID: ${leave.employee_id}</strong>
+                    <p><strong>Leave Type:</strong> ${leave.leave_type}</p>
+                    <p><strong>Dates:</strong> ${leave.leave_from} → ${leave.leave_to}</p>
+                    <p><strong>Total Days:</strong> ${leave.leave_days}</p>
+                    <p><strong>Reason:</strong> ${leave.reason}</p>
+                    <span class="badge badge-pending">PENDING</span>
+
+                    <div class="actions">
+                        <button class="btn-approve" onclick="decideLeave(${leave.id}, 'Approved')">
+                            ✅ Approve
+                        </button>
+                        <button class="btn-reject" onclick="decideLeave(${leave.id}, 'Rejected')">
+                            ❌ Reject
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<div class="empty">❌ Network error</div>';
+    }
+}
+
+async function decideLeave(leaveId, status) {
+    if (!confirm(`Are you sure you want to ${status} this leave?`)) return;
+
+    try {
+        const response = await fetch('/api/leave/decision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                leave_id: leaveId,
+                status: status
+            })
+        });
+
+        if (!response.ok) {
+            alert('❌ Failed to update leave status.');
+            return;
+        }
+
+        loadLeaveRequests();
+
+    } catch (error) {
+        alert('❌ Network error. Please try again.');
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout';
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadPayrollRequests();
+});
+</script>
+
+</body>
+</html>

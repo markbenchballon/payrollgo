@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Payroll Management</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #eef2f7;
+}
+
+.dashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: linear-gradient(180deg, #3f5efb, #4b7bec);
+    color: #fff;
+    padding: 25px 20px;
+}
+
+.sidebar h2 {
+    font-size: 22px;
+    margin-bottom: 40px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 18px;
+}
+
+.sidebar ul li a {
+    color: #eaf0ff;
+    text-decoration: none;
+    display: block;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: background 0.3s;
+    font-size: 14px;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Main */
+.main {
+    flex: 1;
+    padding: 25px 35px;
+}
+
+/* Top bar */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.topbar h1 {
+    font-size: 26px;
+    color: #2c3e50;
+}
+
+.date {
+    font-size: 14px;
+    color: #7f8c8d;
+}
+
+
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none;
+    }
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: white;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 700px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+</style>
+</head>
+<body>
+
+<div class="dashboard">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>Payroll</h2>
+        <ul>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/admin/employees">Employees</a></li>
+            <li><a class="active" href="/admin/payroll">Payroll</a></li>
+            <li><a href="/admin/reports">Reports</a></li>
+            <li><a href="/users">Users</a></li>
+            <li><a href="#">Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <div class="topbar">
+            <h1>💵 Approved Payrolls</h1>
+            <div class="date">{{.date}}</div>
+        </div>
+
+        <!-- Payroll Container -->
+        <div id="payrollContainer">
+            <div style="text-align:center; padding:40px;">Loading approved payrolls...</div>
+        </div>
+
+        
+    
+
+    </main>
+</div>
+
+<!-- Modal for Payroll Details -->
+<div id="payrollModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modalContent"></div>
+    </div>
+</div>
+
+<script>
+async function loadApprovedPayrolls() {
+    const container = document.getElementById('payrollContainer');
+    container.innerHTML = '<div style="text-align:center; padding:40px;">Loading approved payrolls...</div>';
+
+    try {
+        const response = await fetch('/api/payroll/approved');
+
+        if (!response.ok) {
+            container.innerHTML = '<div style="text-align:center; padding:40px; color: #dc2626;">❌ Failed to load payrolls</div>';
+            return;
+        }
+
+        const payrolls = await response.json();
+
+        if (payrolls.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:60px; color: #6b7280;">✅ No approved payrolls yet</div>';
+            return;
+        }
+
+        // Display payrolls
+        let html = '';
+        payrolls.forEach(p => {
+            const statusBadge = p.payment_status === 'Paid' 
+                ? '<span style="background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">💵 PAID</span>'
+                : '<span style="background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">✅ APPROVED</span>';
+
+            html += `
+                <div style="background: white; padding: 20px; margin-bottom: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 6px solid #4f46e5;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div>
+                            <h3 style="margin: 0; font-size: 18px;">${p.first_name} ${p.last_name}</h3>
+                            <p style="color: #6b7280; font-size: 13px; margin: 5px 0 0 0;">${p.employee_id} • ${p.position} • ${p.department}</p>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <strong style="color: #4f46e5; display: block; margin-bottom: 5px;">Period</strong>
+                            ${p.period_from} to ${p.period_to}
+                        </div>
+                        <div>
+                            <strong style="color: #4f46e5; display: block; margin-bottom: 5px;">Days Worked</strong>
+                            ${p.days_worked} / ${p.total_working_days} days
+                        </div>
+                        <div>
+                            <strong style="color: #4f46e5; display: block; margin-bottom: 5px;">Gross Pay</strong>
+                            ₱${parseFloat(p.gross_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                        </div>
+                        <div>
+                            <strong style="color: #4f46e5; display: block; margin-bottom: 5px;">Net Pay</strong>
+                            ₱${parseFloat(p.net_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button onclick="viewPayrollDetails(${p.id})" style="flex: 1; padding: 10px; background: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            👁️ View Details
+                        </button>
+                        ${p.payment_status !== 'Paid' ? `
+                            <button onclick="markAsPaid(${p.id})" style="flex: 1; padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                💵 Mark as Paid
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<div style="text-align:center; padding:40px; color: #dc2626;">❌ Network error</div>';
+    }
+}
+
+async function viewPayrollDetails(payrollId) {
+    try {
+        const response = await fetch(`/api/payroll/details/${payrollId}`);
+        if (!response.ok) {
+            alert('❌ Failed to load payroll details');
+            return;
+        }
+
+        const data = await response.json();
+        
+        const modalContent = `
+            <h2 style="margin-bottom: 20px;">📋 Payroll Details</h2>
+            
+            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h3 style="margin-bottom: 10px;">${data.first_name} ${data.last_name}</h3>
+                <p style="color: #6b7280; font-size: 14px;">${data.employee_id} • ${data.position} • ${data.department}</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <strong>Period:</strong><br>
+                    ${data.period_from} to ${data.period_to}
+                </div>
+                <div>
+                    <strong>Days Worked:</strong><br>
+                    ${data.days_worked} / ${data.total_working_days} days
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <strong>Basic Salary:</strong><br>
+                    ₱${parseFloat(data.basic_salary).toLocaleString('en-PH', {minimumFractionDigits: 2})}
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <strong style="color: #10b981;">Gross Pay:</strong><br>
+                    <span style="font-size: 18px; font-weight: bold;">₱${parseFloat(data.gross_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                </div>
+            </div>
+
+            <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h3 style="color: #dc2626; margin-bottom: 10px;">Deductions:</h3>
+                <div style="display: grid; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>SSS Contribution:</span>
+                        <span>₱${parseFloat(data.sss_contribution).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>PhilHealth Contribution:</span>
+                        <span>₱${parseFloat(data.philhealth_contribution).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Pag-IBIG Contribution:</span>
+                        <span>₱${parseFloat(data.pagibig_contribution).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Withholding Tax:</span>
+                        <span>₱${parseFloat(data.withholding_tax).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; padding-top: 8px; border-top: 2px solid #dc2626;">
+                        <span>Total Deductions:</span>
+                        <span>₱${parseFloat(data.total_deductions).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: #d1fae5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="color: #065f46; font-size: 18px;">NET PAY:</strong>
+                    <span style="color: #10b981; font-size: 24px; font-weight: bold;">₱${parseFloat(data.net_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="printPayroll(${payrollId})" style="flex: 1; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                    🖨️ Print
+                </button>
+                <button onclick="closeModal()" style="flex: 1; padding: 12px; background: #6b7280; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                    Close
+                </button>
+            </div>
+        `;
+
+        document.getElementById('modalContent').innerHTML = modalContent;
+        document.getElementById('payrollModal').style.display = 'block';
+
+    } catch (error) {
+        console.error(error);
+        alert('❌ Network error');
+    }
+}
+
+async function printPayroll(payrollId) {
+    try {
+        const response = await fetch(`/api/payroll/details/${payrollId}`);
+        if (!response.ok) {
+            alert('❌ Failed to load payroll details');
+            return;
+        }
+
+        const data = await response.json();
+        
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Payroll - ${data.first_name} ${data.last_name}</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 40px;
+                        max-width: 800px;
+                        margin: 0 auto;
+                    }
+                    .header {
+                        text-align: center;
+                        margin-bottom: 30px;
+                        border-bottom: 3px solid #4f46e5;
+                        padding-bottom: 20px;
+                    }
+                    .company-name {
+                        font-size: 24px;
+                        font-weight: bold;
+                        color: #4f46e5;
+                    }
+                    .payslip-title {
+                        font-size: 20px;
+                        margin-top: 10px;
+                    }
+                    .employee-info {
+                        background: #f3f4f6;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin-bottom: 20px;
+                    }
+                    .info-row {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 10px;
+                    }
+                    .label {
+                        font-weight: bold;
+                        color: #4f46e5;
+                    }
+                    .section {
+                        margin-bottom: 25px;
+                    }
+                    .section-title {
+                        font-size: 16px;
+                        font-weight: bold;
+                        color: #4f46e5;
+                        margin-bottom: 10px;
+                        border-bottom: 2px solid #e5e7eb;
+                        padding-bottom: 5px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+                    th, td {
+                        padding: 10px;
+                        text-align: left;
+                        border-bottom: 1px solid #e5e7eb;
+                    }
+                    th {
+                        background: #f3f4f6;
+                        font-weight: bold;
+                    }
+                    .total-row {
+                        font-weight: bold;
+                        font-size: 18px;
+                        background: #f3f4f6;
+                    }
+                    .net-pay {
+                        color: #10b981;
+                    }
+                    .footer {
+                        margin-top: 40px;
+                        text-align: center;
+                        color: #6b7280;
+                        font-size: 12px;
+                    }
+                    @media print {
+                        body {
+                            padding: 20px;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div class="company-name">COMPANY NAME</div>
+                    <div class="payslip-title">PAYSLIP</div>
+                </div>
+
+                <div class="employee-info">
+                    <div class="info-row">
+                        <div><span class="label">Employee Name:</span> ${data.first_name} ${data.last_name}</div>
+                        <div><span class="label">Employee ID:</span> ${data.employee_id}</div>
+                    </div>
+                    <div class="info-row">
+                        <div><span class="label">Position:</span> ${data.position}</div>
+                        <div><span class="label">Department:</span> ${data.department}</div>
+                    </div>
+                    <div class="info-row">
+                        <div><span class="label">Pay Period:</span> ${data.period_from} to ${data.period_to}</div>
+                        <div><span class="label">Days Worked:</span> ${data.days_worked} / ${data.total_working_days}</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">EARNINGS</div>
+                    <table>
+                        <tr>
+                            <th>Description</th>
+                            <th style="text-align: right;">Amount</th>
+                        </tr>
+                        <tr>
+                            <td>Basic Salary</td>
+                            <td style="text-align: right;">₱${parseFloat(data.basic_salary).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Gross Pay</td>
+                            <td style="text-align: right;">₱${parseFloat(data.gross_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">DEDUCTIONS</div>
+                    <table>
+                        <tr>
+                            <th>Description</th>
+                            <th style="text-align: right;">Amount</th>
+                        </tr>
+                        <tr>
+                            <td>SSS Contribution</td>
+                            <td style="text-align: right;">₱${parseFloat(data.sss_contribution).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td>PhilHealth Contribution</td>
+                            <td style="text-align: right;">₱${parseFloat(data.philhealth_contribution).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td>Pag-IBIG Contribution</td>
+                            <td style="text-align: right;">₱${parseFloat(data.pagibig_contribution).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr>
+                            <td>Withholding Tax</td>
+                            <td style="text-align: right;">₱${parseFloat(data.withholding_tax).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total Deductions</td>
+                            <td style="text-align: right;">₱${parseFloat(data.total_deductions).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <table>
+                        <tr class="total-row">
+                            <td class="net-pay">NET PAY</td>
+                            <td class="net-pay" style="text-align: right; font-size: 22px;">₱${parseFloat(data.net_pay).toLocaleString('en-PH', {minimumFractionDigits: 2})}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="footer">
+                    <p>This is a computer-generated payslip. No signature required.</p>
+                    <p>Printed on: ${new Date().toLocaleString('en-PH')}</p>
+                </div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        setTimeout(() => {
+            printWindow.print();
+        }, 250);
+
+    } catch (error) {
+        console.error(error);
+        alert('❌ Failed to print payroll');
+    }
+}
+
+async function markAsPaid(payrollId) {
+    if (!confirm('Mark this payroll as PAID?')) return;
+
+    try {
+        const response = await fetch('/api/payroll/mark-paid', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payroll_id: payrollId })
+        });
+
+        if (response.ok) {
+            alert('✅ Marked as Paid!');
+            loadApprovedPayrolls();
+        } else {
+            alert('❌ Failed to update status');
+        }
+    } catch (error) {
+        alert('❌ Network error');
+    }
+}
+
+function closeModal() {
+    document.getElementById('payrollModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('payrollModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Load on page load
+window.addEventListener('DOMContentLoaded', () => {
+    loadApprovedPayrolls();
+});
+</script>
+
+</body>
+</html>
