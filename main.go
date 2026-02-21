@@ -1,8 +1,10 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"net/smtp"
 	"os"
@@ -234,16 +236,58 @@ func ensureAdmin() {
 }
 
 func main() {
-	var err error
+	// var err error
 
-	db, err = sql.Open("mysql", "root@tcp(127.0.0.1:3306)/payrollgo")
+	// db, err = sql.Open("mysql", "root@tcp(127.0.0.1:3306)/payrollgo")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// if err = db.Ping(); err != nil {
+	// 	panic(err)
+	// }
+
+	// 📌 Render provides DATABASE_URL automatically (BEST PRACTICE)
+
+	// 📌 Read env variables
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	pass := os.Getenv("DB_PASS")
+	name := os.Getenv("DB_NAME")
+
+	if host == "" || port == "" || user == "" || name == "" {
+		log.Fatal("❌ Missing required DB environment variables")
+	}
+
+	// 📌 Build DSN manually
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s",
+		user, pass, host, port, name,
+	)
+
+	// 📌 Open connection
+	DB, err := sql.Open("pgx", dsn)
 	if err != nil {
-		panic(err)
+		log.Fatalf("❌ Failed to open DB: %v", err)
 	}
 
-	if err = db.Ping(); err != nil {
-		panic(err)
+	// 📌 Pool config
+	DB.SetMaxOpenConns(25)
+	DB.SetMaxIdleConns(10)
+	DB.SetConnMaxLifetime(5 * time.Minute)
+
+	// 📌 Ping with timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err = DB.PingContext(ctx); err != nil {
+		log.Fatalf("❌ Database unreachable: %v", err)
 	}
+
+	log.Println("✅ Connected to PostgreSQL (env-based config)")
+
+	log.Println("✅ Connected to PostgreSQL (Render ready)")
 
 	fmt.Println("Connected to MySQL payrollgo!")
 
